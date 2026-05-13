@@ -1,52 +1,56 @@
-<aside class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-4" id="sidenav-main">
+<aside class="sidebar p-3">
 
-    <div class="sidenav-header">
-        <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-xl-none" id="iconSidenav"></i>
-
-        <a class="navbar-brand m-0" href="#">
-            <img src="{{ asset('assets/img/logo-ct-dark.png') }}" class="navbar-brand-img h-100" alt="logo">
-            <span class="ms-1 font-weight-bold">Admin Panel</span>
-        </a>
+    <!-- Logo -->
+    <div class="d-flex align-items-center mb-4">
+        <i class="fas fa-layer-group text-primary fs-4"></i>
+        <span class="ms-2 fw-bold fs-5">Admin SaaS</span>
     </div>
 
-    <hr class="horizontal dark mt-0">
+    <!-- Menu -->
+    <ul class="nav flex-column gap-1">
 
-    <div class="collapse navbar-collapse w-auto">
-        <ul class="navbar-nav">
+        <li>
+            <a href="{{ route('admin.dashboard') }}"
+               class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                <i class="fas fa-chart-line me-2"></i> Dashboard
+            </a>
+        </li>
 
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
-                    <i class="ni ni-tv-2 text-dark text-sm opacity-10"></i>
-                    <span class="nav-link-text ms-1">Dashboard</span>
-                </a>
-            </li>
+        <li>
+            <a href="{{ route('admin.user') }}" class="nav-link {{ request()->routeIs('admin.user') ? 'active' : '' }}">
+                <i class="fas fa-users me-2"></i> Users
+            </a>
+        </li>
 
-            <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
-                    <span class="nav-link-text ms-1">Tables</span>
-                </a>
-            </li>
+        <li>
+            <a href="#" class="nav-link">
+                <i class="fas fa-box me-2"></i> Products
+            </a>
+        </li>
 
-            <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="ni ni-credit-card text-dark text-sm opacity-10"></i>
-                    <span class="nav-link-text ms-1">Billing</span>
-                </a>
-            </li>
+        <li>
+            <a href="#" class="nav-link">
+                <i class="fas fa-file me-2"></i> Reports
+            </a>
+        </li>
 
-            <li class="nav-item mt-3">
-                <h6 class="ps-4 text-uppercase text-xs font-weight-bolder opacity-6">Account</h6>
-            </li>
+        <hr>
 
-            <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
-                    <span class="nav-link-text ms-1">Profile</span>
-                </a>
-            </li>
+        <li>
+            <a href="#" class="nav-link">
+                <i class="fas fa-user me-2"></i> Profile
+            </a>
+        </li>
 
-        </ul>
-    </div>
+        <li>
+            <form method="POST" action="{{ route('admin.logout') }}">
+                @csrf
+                <button class="btn btn-sm btn-outline-danger w-100 mt-2">
+                    Logout
+                </button>
+            </form>
+        </li>
+
+    </ul>
 
 </aside>

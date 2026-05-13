@@ -1,46 +1,50 @@
-<nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl">
+<nav class="topbar navbar navbar-expand-lg px-4 py-3">
 
-    <div class="container-fluid py-1 px-3">
+    <!-- Sidebar Toggle -->
+    <button class="btn btn-light d-lg-none" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
 
-        {{-- Breadcrumb --}}
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0">
-                <li class="breadcrumb-item text-sm">
-                    <a class="opacity-5 text-dark" href="#">Pages</a>
-                </li>
-                <li class="breadcrumb-item text-sm text-dark active">
-                    @yield('title')
-                </li>
-            </ol>
-            <h6 class="font-weight-bolder mb-0">@yield('title')</h6>
-        </nav>
+    <!-- Title -->
+    <div class="ms-3">
+        <h5 class="mb-0 fw-bold">@yield('title')</h5>
+    </div>
 
-        {{-- Right Side --}}
-        <div class="collapse navbar-collapse mt-sm-0 mt-2">
+    <!-- Right Side -->
+    <div class="ms-auto d-flex align-items-center gap-3">
 
-            {{-- Search --}}
-            <div class="ms-md-auto pe-md-3 d-flex align-items-center">
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-search"></i></span>
-                    <input type="text" class="form-control" placeholder="Search...">
+        <!-- Search -->
+        <div class="d-none d-md-block">
+            <input type="text" class="form-control form-control-sm rounded-3" placeholder="Search...">
+        </div>
+
+        <!-- User -->
+        <div class="dropdown">
+
+            <a class="d-flex align-items-center text-decoration-none" data-bs-toggle="dropdown">
+
+                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                     style="width:38px;height:38px;">
+                    {{ strtoupper(substr(auth()->user()->name ?? 'A',0,1)) }}
                 </div>
-            </div>
 
-            {{-- User --}}
-            <ul class="navbar-nav justify-content-end">
+                <span class="ms-2 d-none d-md-block">
+                    {{ auth()->user()->name ?? 'Admin' }}
+                </span>
 
-                <li class="nav-item d-flex align-items-center">
-                    <a href="#" class="nav-link font-weight-bold px-0">
-                        <i class="fa fa-user me-1"></i>
-                        {{ auth()->user()->name ?? 'Admin' }}
-                    </a>
-                </li>
+            </a>
 
-                {{-- Logout --}}
-                <li class="nav-item d-flex align-items-center ms-3">
-                    <form method="POST" action="{{ route('logout') }}">
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+
+                <li><a class="dropdown-item" href="#">Profile</a></li>
+                <li><a class="dropdown-item" href="#">Settings</a></li>
+
+                <li><hr></li>
+
+                <li>
+                    <form method="POST" action="{{ route('admin.logout') }}">
                         @csrf
-                        <button class="btn btn-sm btn-outline-danger">Logout</button>
+                        <button class="dropdown-item text-danger">Logout</button>
                     </form>
                 </li>
 

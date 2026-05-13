@@ -1,0 +1,285 @@
+:root {
+
+  --primary: #0e222e;
+  --secondary: #576661;
+  --background: #f6f7fb;
+  --card: #ffffff;
+
+  --accent: #ff8a00;
+  --accent-hover: #e67600;
+
+  --text-dark: #0f172a;
+  --text-muted: #6b7280;
+
+  --border: #e5e7eb;
+
+  --shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* GLOBAL */
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--background);
+    color: var(--text-dark);
+    margin: 0;
+}
+
+h1,h2,h3,h4,h5 {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+    width: 280px;
+    height: 100vh;
+    background: var(--primary);
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding: 24px 18px;
+    overflow-y: auto;
+    transition: 0.3s;
+    z-index: 1000;
+}
+
+.sidebar-brand {
+    margin-bottom: 35px;
+    padding: 0 10px;
+}
+
+.sidebar-brand h3 {
+    color: white;
+    margin: 0;
+    font-size: 28px;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu li {
+    margin-bottom: 10px;
+}
+
+/* Menu Links */
+
+.sidebar-menu a,
+.dropdown-btn {
+
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: transparent;
+    border: none;
+
+    padding: 14px 16px;
+    border-radius: 14px;
+
+    color: rgba(255,255,255,0.75);
+
+    text-decoration: none;
+
+    transition: 0.3s;
+
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.sidebar-menu a div,
+.dropdown-btn div {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar-menu a:hover,
+.dropdown-btn:hover {
+
+    background: rgba(255,255,255,0.08);
+    color: white;
+}
+
+.sidebar-menu a.active {
+    background: var(--accent);
+    color: white;
+}
+
+.menu-icon {
+    width: 22px;
+    text-align: center;
+    font-size: 18px;
+}
+
+/* Submenu */
+
+.submenu {
+    list-style: none;
+    padding-left: 18px;
+    margin-top: 8px;
+}
+
+.submenu li {
+    margin-bottom: 6px;
+}
+
+.submenu a {
+
+    padding: 10px 14px;
+    display: block;
+
+    border-radius: 10px;
+
+    font-size: 14px;
+    color: rgba(255,255,255,0.65);
+}
+
+.submenu a:hover {
+    background: rgba(255,255,255,0.06);
+    color: white;
+}
+
+/* MAIN */
+
+.main-content {
+    margin-left: 280px;
+    min-height: 100vh;
+    padding: 30px;
+}
+
+/* TOPBAR */
+
+.mobile-topbar {
+    display: none;
+}
+
+/* BUTTON */
+
+.menu-toggle {
+
+    border: none;
+    background: var(--primary);
+
+    width: 42px;
+    height: 42px;
+
+    border-radius: 10px;
+
+    color: white;
+    font-size: 20px;
+}
+
+/* FOOTER */
+
+.footer {
+
+    margin-top: 40px;
+
+    background: var(--card);
+
+    border-top: 1px solid var(--border);
+
+    padding: 20px;
+    border-radius: 16px;
+}
+
+.footer-content {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.footer-links {
+
+    display: flex;
+    gap: 20px;
+}
+
+.footer-links a {
+
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.footer-links a:hover {
+    color: var(--accent);
+}
+
+/* OVERLAY */
+
+.sidebar-overlay {
+    display: none;
+}
+
+.sidebar-overlay.active {
+
+    display: block;
+
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0,0,0,0.45);
+
+    z-index: 999;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 991px) {
+
+    .sidebar {
+        left: -290px;
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .mobile-topbar {
+
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        background: var(--card);
+
+        padding: 16px 20px;
+
+        border-bottom: 1px solid var(--border);
+
+        position: sticky;
+        top: 0;
+        z-index: 1001;
+    }
+
+    .mobile-topbar h4 {
+        margin: 0;
+        color: var(--primary);
+    }
+
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-links {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
