@@ -38,7 +38,7 @@
                         @foreach($users as $user)
 
                         @php
-                            $statusColor = match($user->account_status) {
+                            $statusColor = match($user->status) {
                                 'active' => 'success',
                                 'trial' => 'warning',
                                 'expired' => 'danger',

@@ -23,4 +23,5 @@ class AdminController extends Controller
 
         return view('admin.user.show', compact('user'));
     }
+    
 }

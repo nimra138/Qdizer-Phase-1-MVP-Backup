@@ -10,7 +10,7 @@
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <!-- Main CSS -->
     <link rel="stylesheet" href="{{ asset('user/style-dash.css') }}">
 </head>
@@ -27,10 +27,11 @@
 
     <!-- Main Content -->
     <main class="main-content">
-
-        @yield('content')
-
-        <!-- Footer -->
+<div class="container pt-5">
+    @yield('content')
+    
+</div>
+    <!-- Footer -->
         @include('user.partials.footer')
 
     </main>

@@ -8,7 +8,8 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Sora:wght@600;700&display=swap" rel="stylesheet">
-
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <link href="{{ asset('user/style.css') }}" rel="stylesheet">
 </head>
 
@@ -79,26 +80,39 @@
       @enderror
 
       <!-- Password -->
-      <input 
-        class="form-control mb-2" 
+<div class="password-wrapper mb-2">
+    <input
+        class="form-control"
         type="password"
+        id="password"
         name="password"
         placeholder="Password"
         required
-      >
+    >
 
-      @error('password')
-        <small class="text-danger">{{ $message }}</small>
-      @enderror
+    <i class="fas fa-eye password-toggle"
+       onclick="togglePassword('password', this)"></i>
+</div>
 
-      <!-- Confirm Password -->
-      <input 
-        class="form-control mb-3" 
+@error('password')
+    <small class="text-danger">{{ $message }}</small>
+@enderror
+
+
+<!-- Confirm Password -->
+<div class="password-wrapper mb-3">
+    <input
+        class="form-control"
         type="password"
+        id="password_confirmation"
         name="password_confirmation"
         placeholder="Confirm Password"
         required
-      >
+    >
+
+    <i class="fas fa-eye password-toggle"
+       onclick="togglePassword('password_confirmation', this)"></i>
+</div>
 
       <!-- Submit -->
       <button type="submit" class="btn btn-accent w-100 py-2">
@@ -114,6 +128,20 @@
   </div>
 
 </div>
+<script>
+function togglePassword(id, icon){
+    let input = document.getElementById(id);
 
+    if(input.type === "password"){
+        input.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+    }else{
+        input.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+    }
+}
+</script>
 </body>
 </html>
