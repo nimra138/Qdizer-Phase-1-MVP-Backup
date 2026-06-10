@@ -26,7 +26,26 @@
 
 <!-- FORM CARD -->
 <div class="card-ui p-4">
+    {{-- Success Message --}}
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
 
+{{-- Error Messages --}}
+@if($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+        <strong>Please fix the following errors:</strong>
+        <ul class="mb-0 mt-2">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
     <form action="{{ route('services.store') }}" method="POST">
         @csrf
 

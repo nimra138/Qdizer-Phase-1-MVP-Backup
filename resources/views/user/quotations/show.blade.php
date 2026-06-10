@@ -6,35 +6,40 @@
 
 <div class="container-fluid py-4">
 
-    {{-- HEADER --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
 
-        <div>
-            <h3 class="mb-0">
-                {{ $quotation->quotation_number }}
-            </h3>
-            <small class="text-muted">
-                Date: {{ $quotation->date }}
-            </small>
-        </div>
+    <div>
+        <h3 class="mb-0">
+            {{ $quotation->quotation_number }}
+        </h3>
+        <small class="text-muted">
+            Date: {{ $quotation->date }}
+        </small>
+    </div>
 
-        <div class="d-flex gap-2">
+    <div class="d-flex gap-2">
 
-            {{-- PDF --}}
-            <a href="#"
-               class="btn btn-primary rounded-3">
-                Download PDF
-            </a>
+        {{-- BACK --}}
+        <a href="{{ url()->previous() }}"
+           class="btn btn-secondary rounded-3">
+            ← Back
+        </a>
 
-            {{-- PRINT --}}
-            <button onclick="window.print()"
-                    class="btn btn-light border rounded-3">
-                Print
-            </button>
+        {{-- PDF --}}
+        <a href="#"
+           class="btn btn-primary rounded-3">
+            Download PDF
+        </a>
 
-        </div>
+        {{-- PRINT --}}
+        <button onclick="window.print()"
+                class="btn btn-light border rounded-3">
+            Print
+        </button>
 
     </div>
+
+</div>
 
     <div class="row g-4">
 

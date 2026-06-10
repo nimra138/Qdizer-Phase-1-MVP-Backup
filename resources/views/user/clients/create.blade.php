@@ -12,7 +12,7 @@
         <small class="text-muted">Create a reusable client for quotations</small>
     </div>
 
-    <div class="row justify-content-center">
+    <div class="row justify-content-center mb-5">
 
         <div class="col-md-8">
 

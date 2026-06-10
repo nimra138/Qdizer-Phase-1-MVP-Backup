@@ -126,12 +126,28 @@
                     <!-- ACTIONS -->
                     <td class="text-end d-flex justify-content-end gap-2">
 
-                        <a href="{{ route('quotations.show', $quotation->id) }}"
+                        <a href="{{ route('quotations.show', $quotation) }}"
                            class="btn btn-sm"
                            style="background: var(--secondary); color:#fff; border-radius:10px;">
                             <i class="fas fa-eye"></i>
                         </a>
+                        @php
+                            $phone = preg_replace('/[^0-9]/', '', $quotation->client->phone_number);
 
+                            $text = "📄 Quotation: {$quotation->quotation_number}\n"
+                                . "💰 Total: " . number_format($quotation->total, 2) . "\n"
+                                . "🔗 " . route('quotations.show', $quotation )
+                                ;
+
+                            $waMessage = urlencode($text);
+                        @endphp
+
+                        <a href="https://wa.me/{{ $phone }}?text={{ $waMessage }}"
+                        target="_blank"
+                        class="btn btn-sm"
+                        style="background:#25D366; color:#fff; border-radius:10px;">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
                         <a href="{{ route('quotations.edit', $quotation->id) }}"
                            class="btn btn-sm"
                            style="background: var(--primary); color:#fff; border-radius:10px;">
@@ -192,8 +208,8 @@
 
 <!-- PAGINATION -->
 @if($quotations->hasPages())
-<div class="mt-3">
-    {{ $quotations->links() }}
+<div class="mt-3 mb-5">
+    {{ $quotations->links('pagination::bootstrap-5') }}
 </div>
 @endif
 

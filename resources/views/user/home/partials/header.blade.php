@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-modern sticky-top">
     <div class="container">
 
-        <a href="{{ route('home') }}" class="navbar-brand d-flex align-items-center">
+        <a href="{{ route('main') }}" class="navbar-brand d-flex align-items-center">
 
     <img src="{{ asset('user/img/logo.png') }}"
          alt="QDizer Logo"
@@ -25,7 +25,7 @@
 
                 <li class="nav-item">
                     <a class="nav-link"
-                       href="{{ route('home') }}">
+                       href="{{ route('main') }}">
                         Home
                     </a>
                 </li>

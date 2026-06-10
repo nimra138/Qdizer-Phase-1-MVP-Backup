@@ -4,7 +4,10 @@
 
 @section('content')
 
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 mb-5">
+     @php
+        $expired = auth()->check() && auth()->user()->status == 'expired';
+    @endphp
 
     {{-- HEADER --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -18,14 +21,22 @@
 
             <a href="{{ route('clients.edit', $client->id) }}"
                class="btn btn-warning rounded-3">
+               <i class="fas fa-edit"></i>
                 Edit Client
             </a>
 
-            <a href="{{ route('quotations.create') }}"
+            {{-- <a href="{{ route('quotations.create') }}"
                class="btn btn-primary rounded-3">
-                + Create Quotation
-            </a>
-
+                
+            </a> --}}
+            <a class="btn btn-primary rounded-3" href="{{ $expired ? 'javascript:void(0)' : route('quotations.create') }}"
+                   class="{{ $expired ? 'text-muted' : '' }}"
+                   @if($expired)
+                       onclick="alert('Your trial has expired. Please upgrade your subscription.')"
+                   @endif>
+                    <i class="fas fa-plus"></i>
+                    Create Quotation
+                </a>
         </div>
 
     </div>

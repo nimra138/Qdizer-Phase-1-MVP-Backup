@@ -27,7 +27,7 @@
 
     <!-- Main Content -->
     <main class="main-content">
-<div class="container pt-5">
+<div class="container pt-5 mb-5">
     @yield('content')
     
 </div>

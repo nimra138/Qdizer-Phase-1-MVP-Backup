@@ -30,5 +30,9 @@ class Quotation extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function getRouteKeyName()
+    {
+        return 'quotation_number';
+    }
     
 }

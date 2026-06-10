@@ -46,7 +46,29 @@ class ClientController extends Controller
             'address' => 'nullable',
             'notes' => 'nullable',
         ]);
+        $nameExists = Client::where('user_id', auth()->id())
+            ->where('client_name', $request->client_name)
+            ->exists();
 
+        $phoneExists = Client::where('user_id', auth()->id())
+            ->where('phone_number', $request->phone_number)
+            ->exists();
+
+        if ($nameExists || $phoneExists) {
+            $errors = [];
+
+            if ($nameExists) {
+                $errors['client_name'] = 'This client name already exists.';
+            }
+
+            if ($phoneExists) {
+                $errors['phone_number'] = 'This phone number already exists.';
+            }
+
+            return back()
+                ->withInput()
+                ->withErrors($errors);
+}
         auth()->user()->clients()->create([
             'client_name' => $request->client_name,
             'phone_number' => $request->phone_number,
@@ -60,9 +82,7 @@ class ClientController extends Controller
             ->with('success', 'Client created successfully');
     }
 
-    /**
-     * Show client profile (IMPORTANT for quotation history)
-     */
+    
     public function show(string $id)
 {
     // $client = Client::where('user_id', auth()->id())

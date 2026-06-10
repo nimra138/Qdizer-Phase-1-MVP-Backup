@@ -24,7 +24,7 @@
 
 <!-- TABLE CARD -->
 <div class="card-ui" style="overflow: hidden;">
-
+        
     <div class="table-responsive">
 
         <table class="table align-middle mb-0">
@@ -52,7 +52,7 @@
                     <td>
                         <span class="badge"
                               style="background: rgba(255,138,0,.1); color: var(--accent); padding:8px 12px;">
-                            Rs {{ $service->unit_price }}
+                            AED {{ $service->unit_price }}
                         </span>
                     </td>
 

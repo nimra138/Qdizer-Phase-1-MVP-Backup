@@ -1,4 +1,4 @@
-<footer class="saas-footer mt-auto">
+<footer class="saas-footer mt-auto ">
 
     <div class="container-fluid ">
 

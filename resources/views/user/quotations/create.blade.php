@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 mb-4">
 
     <div class="mb-4">
         <h3 class="mb-0">Create Quotation</h3>
@@ -48,7 +48,7 @@
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <span>VAT (15%):</span>
+                            <span>VAT (5%):</span>
                             <strong id="vat">0.00</strong>
                         </div>
 
@@ -193,7 +193,6 @@ function removeRow(btn) {
     btn.closest('tr').remove();
     calc();
 }
-
 function calc() {
 
     let subtotal = 0;
@@ -211,13 +210,37 @@ function calc() {
         }
     });
 
-    let vat = subtotal * 0.15;
+    let vat = subtotal * 0.05; // 5%
     let total = subtotal + vat;
 
     document.getElementById('subtotal').innerText = subtotal.toFixed(2);
     document.getElementById('vat').innerText = vat.toFixed(2);
     document.getElementById('total').innerText = total.toFixed(2);
 }
+// function calc() {
+
+//     let subtotal = 0;
+
+//     document.querySelectorAll('#serviceBody tr').forEach(row => {
+
+//         let select = row.querySelector('.service');
+//         let qty = row.querySelector('.qty');
+
+//         if (select && select.selectedOptions.length > 0) {
+
+//             let price = select.selectedOptions[0].dataset.price || 0;
+
+//             subtotal += price * (qty.value || 1);
+//         }
+//     });
+
+//     let vat = subtotal * 0.15;
+//     let total = subtotal + vat;
+
+//     document.getElementById('subtotal').innerText = subtotal.toFixed(2);
+//     document.getElementById('vat').innerText = vat.toFixed(2);
+//     document.getElementById('total').innerText = total.toFixed(2);
+// }
 </script>
 
 @endsection

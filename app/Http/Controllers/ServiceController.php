@@ -20,22 +20,34 @@ class ServiceController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'service_name' => 'required',
-            'unit_price' => 'required|numeric',
-            'description' => 'nullable'
-        ]);
+{
+    $request->validate([
+        'service_name' => 'required',
+        'unit_price' => 'required|numeric',
+        'description' => 'nullable'
+    ]);
 
-        auth()->user()->services()->create([
-            'service_name' => $request->service_name,
-            'unit_price' => $request->unit_price,
-            'description' => $request->description,
-        ]);
+    $exists = auth()->user()->services()
+        ->where('service_name', $request->service_name)
+        ->exists();
 
-        return redirect()->route('services.index')
-            ->with('success', 'Service added successfully');
+    if ($exists) {
+        return back()
+            ->withInput()
+            ->withErrors([
+                'service_name' => 'This service already exists.'
+            ]);
     }
+
+    auth()->user()->services()->create([
+        'service_name' => $request->service_name,
+        'unit_price' => $request->unit_price,
+        'description' => $request->description,
+    ]);
+
+    return redirect()->route('services.index')
+        ->with('success', 'Service added successfully');
+}
 
     public function edit(Service $service)
     {
@@ -53,7 +65,9 @@ class ServiceController extends Controller
             'unit_price' => 'required|numeric',
             'description' => 'nullable'
         ]);
-
+        // Rule::unique('services')
+        //     ->where(fn ($q) => $q->where('user_id', auth()->id()))
+        //     ->ignore($service->id)
         $service->update([
             'service_name' => $request->service_name,
             'unit_price' => $request->unit_price,

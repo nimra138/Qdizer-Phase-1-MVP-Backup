@@ -195,17 +195,15 @@
 
                 <li><hr class="dropdown-divider"></li>
 
-                <li>
-                    <a class="dropdown-item" href="#">
-                        <i class="fas fa-user"></i>
-                        Profile
+               <li>
+                    <a class="dropdown-item" href="{{ route('company.show') }}">
+                        <i class="fas fa-user me-2"></i> Profile
                     </a>
                 </li>
 
                 <li>
-                    <a class="dropdown-item" href="#">
-                        <i class="fas fa-cog"></i>
-                        Settings
+                    <a class="dropdown-item" href="{{ route('company.edit') }}">
+                        <i class="fas fa-gear me-2"></i> Settings
                     </a>
                 </li>
 

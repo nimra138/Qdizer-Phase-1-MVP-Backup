@@ -11,11 +11,6 @@
 
 <link href="{{ asset('user/style.css') }}" rel="stylesheet">
 
-<style>
-
-b
-</style>
-
 </head>
 
 <body>

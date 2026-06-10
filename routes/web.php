@@ -14,15 +14,15 @@ use App\Http\Controllers\AdminController;
 
 use Illuminate\Support\Facades\Route;
 
-    Route::view('/', 'website.home')->name('home.page');
-Route::view('/about', 'website.about')->name('about.page');
-Route::view('/features', 'website.features')->name('features.page');
-Route::view('/pricing', 'website.pricing')->name('pricing.page');
-Route::view('/contact', 'website.contact')->name('contact.page');
+    
+Route::view('/about', 'user.home.coming')->name('about.page');
+Route::view('/features', 'user.home.coming')->name('features.page');
+Route::view('/pricing', 'user.home.coming')->name('pricing.page');
+Route::view('/contact', 'user.home.coming')->name('contact.page');
     Auth::routes(['verify' => true]);
     Route::get('/', function () {
         return view('user.home.index');
-        });
+        })->name('main');
         
         Route::get('/dashboard', function () {
             return view('user.dashboard.index');
