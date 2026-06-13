@@ -78,9 +78,9 @@
 
                         <div class="col-md-6 mb-2">
                             <small class="text-muted">VAT Registered</small>
-                            <h6>
-                                {{ $company->vat_registered ? 'Yes' : 'No' }}
-                            </h6>
+                         <h6>
+    {{ optional($company)->vat_registered ? 'Yes' : 'No' }}
+</h6>
                         </div>
 
                         <div class="col-md-6 mb-2">

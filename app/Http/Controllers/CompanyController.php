@@ -56,10 +56,11 @@ public function update(Request $request)
         ]);
     }
 
-    return back()->with(
-        'success',
-        'Company profile saved successfully'
-    );
+    // return back()->with(
+    //     'success',
+    //     'Company profile saved successfully'
+    // );
+    return view('user.company.show', compact('company'));
 }
 public function show()
 {
