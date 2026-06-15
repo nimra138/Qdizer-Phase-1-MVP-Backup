@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Service;
 use App\Models\Company;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class QuotationController extends Controller
 {
@@ -37,72 +38,74 @@ class QuotationController extends Controller
             'items.*.quantity' => 'required|numeric|min:1',
         ]);
 
-        $quotation = Quotation::create([
-            'user_id' => auth()->id(),
-            'client_id' => $request->client_id,
-            'quotation_number' => $this->generateQuotationNumber(),
-            'date' => now(),
-            'subtotal' => 0,
-            'vat' => 0,
-            'total' => 0,
-            'notes' => $request->notes,
-        ]);
+        DB::beginTransaction();
 
-        $subtotal = 0;
-
-        foreach ($request->items as $item) {
-
-            $service = Service::findOrFail($item['service_id']);
-
-            $unitPrice = $service->unit_price;
-            $quantity = $item['quantity'];
-
-            $lineTotal = $unitPrice * $quantity;
-
-            $quotation->items()->create([
-                'service_id' => $service->id,
-                'quantity' => $quantity,
-                'unit_price' => $unitPrice,
-                'total' => $lineTotal,
+        try {
+            $quotation = Quotation::create([
+                'user_id' => auth()->id(),
+                'client_id' => $request->client_id,
+                'quotation_number' => $this->generateQuotationNumber(),
+                'date' => now(),
+                'subtotal' => 0,
+                'vat' => 0,
+                'total' => 0,
+                'notes' => $request->notes,
             ]);
 
-            $subtotal += $lineTotal;
-        }
+            $subtotal = 0;
 
-        // $company = auth()->user()->company;
+            foreach ($request->items as $item) {
+                $service = Service::findOrFail($item['service_id']);
 
-       $company = Company::where('user_id', auth()->id())->first();
+                $unitPrice = $service->unit_price;
+                $quantity = $item['quantity'];
+                $lineTotal = $unitPrice * $quantity;
 
+                $quotation->items()->create([
+                    'service_id' => $service->id,
+                    'quantity' => $quantity,
+                    'unit_price' => $unitPrice,
+                    'total' => $lineTotal,
+                ]);
 
-        $vat = ($company && $company->vat_registered == 1)
-            ? ($subtotal * 0.05)
-            : 0;
+                $subtotal += $lineTotal;
+            }
 
+            $company = Company::where('user_id', auth()->id())->first();
+
+            $vat = ($company && $company->vat_registered == 1)
+                ? ($subtotal * 0.05)
+                : 0;
 
             $grandTotal = $subtotal + $vat;
 
-        $quotation->update([
-            'subtotal' => $subtotal,
-            'vat' => $vat,
-            'total' => $grandTotal,
-        ]);
+            $quotation->update([
+                'subtotal' => $subtotal,
+                'vat' => $vat,
+                'total' => $grandTotal,
+            ]);
 
-        return redirect()
-            ->route('quotations.index')
-            ->with('success', 'Quotation created successfully');
+            DB::commit();
+
+            return redirect()
+                ->route('quotations.index')
+                ->with('success', 'Quotation created successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     public function show(Quotation $quotation)
-{
-    $quotation->load(['client', 'items.service']);
+    {
+        $quotation->load(['client', 'items.service']);
 
-    // security: ensure user owns it
-    if ($quotation->user_id !== auth()->id()) {
-        abort(403);
+        if ($quotation->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        return view('user.quotations.show', compact('quotation'));
     }
-
-    return view('user.quotations.show', compact('quotation'));
-}
 
     public function edit(string $id)
     {
@@ -126,9 +129,7 @@ class QuotationController extends Controller
         $subtotal = 0;
 
         foreach ($request->items as $item) {
-
             $service = Service::findOrFail($item['service_id']);
-
             $lineTotal = $service->unit_price * $item['quantity'];
 
             $quotation->items()->create([
@@ -141,23 +142,13 @@ class QuotationController extends Controller
             $subtotal += $lineTotal;
         }
 
-      
-        // $company = auth()->user()->company;
-
-        // $vat = ($company && $company->vat_registered)
-        //     ? ($subtotal * 0.05)
-        //     : 0;
-
-        // $grandTotal = $subtotal + $vat;
-          $company = Company::where('user_id', auth()->id())->first();
-
+        $company = Company::where('user_id', auth()->id())->first();
 
         $vat = ($company && $company->vat_registered == 1)
             ? ($subtotal * 0.05)
             : 0;
 
-
-            $grandTotal = $subtotal + $vat;
+        $grandTotal = $subtotal + $vat;
 
         $quotation->update([
             'client_id' => $request->client_id,
@@ -184,18 +175,30 @@ class QuotationController extends Controller
 
     private function generateQuotationNumber()
     {
-        $last = Quotation::where('user_id', auth()->id())
-            ->latest('id')
+        $userId = auth()->id();
+
+        $last = Quotation::where('user_id', $userId)
+            ->orderByDesc('id')
             ->first();
 
-        if (!$last) {
-            return 'Q-0001';
+        $nextNumber = 1;
+
+        if ($last) {
+            $nextNumber = ((int) str_replace('Q-', '', $last->quotation_number)) + 1;
         }
 
-        $number = (int) str_replace('Q-', '', $last->quotation_number);
-        $number++;
+        $quotationNumber = 'Q-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
-        return 'Q-' . str_pad($number, 4, '0', STR_PAD_LEFT);
+        while (
+            Quotation::where('user_id', $userId)
+                ->where('quotation_number', $quotationNumber)
+                ->exists()
+        ) {
+            $nextNumber++;
+            $quotationNumber = 'Q-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        }
+
+        return $quotationNumber;
     }
 
     public function template($id)
