@@ -74,6 +74,14 @@
         <ul class="submenu">
 
             <li>
+                <a href="{{route('quotations.index') }}"
+                   class="text-muted">
+                   
+                    <i class="fas fa-list"></i>
+                    All Quotations
+                </a>
+            </li>
+            {{-- <li>
                 <a href="{{ $expired ? 'javascript:void(0)' : route('quotations.index') }}"
                    class="{{ $expired ? 'text-muted' : '' }}"
                    @if($expired)
@@ -82,7 +90,7 @@
                     <i class="fas fa-list"></i>
                     All Quotations
                 </a>
-            </li>
+            </li> --}}
 
             <li>
                 <a href="{{ $expired ? 'javascript:void(0)' : route('quotations.create') }}"
@@ -94,8 +102,9 @@
                     Create Quotation
                 </a>
             </li>
-
+            {{-- <li><a href="{{ route('quotation.pdfs') }}"><i class="fas fa-user-group"></i> quotation.pdfs</a></li> --}}
         </ul>
+        
     </div>
 </li>
 
@@ -154,7 +163,7 @@
 
             <!-- Billing -->
             <li>
-                <a href="#" class="menu-link">
+                <a href="{{ route('billing') }}" class="menu-link">
                     <div class="menu-left">
                         <i class="fas fa-credit-card menu-icon"></i>
                         Billing / Subscription

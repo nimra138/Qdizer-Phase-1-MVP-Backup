@@ -31,6 +31,27 @@
                             </option>
                         @endforeach
                     </select>
+                    <select name="template" class="form-select">
+
+                        <option value="corporate">
+
+                        Corporate
+
+                        </option>
+
+                        <option value="minimal">
+
+                        Minimal
+
+                        </option>
+
+                        <option value="contractor">
+
+                        Contractor
+
+                        </option>
+
+                        </select>
 
                     {{-- NOTES --}}
                     <label class="form-label">Notes</label>

@@ -7,11 +7,13 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Cashier\Billable;
 
 class User extends Authenticatable  implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+    use Billable;
 
     /**
      * The attributes that are mass assignable.
@@ -24,10 +26,29 @@ class User extends Authenticatable  implements MustVerifyEmail
         'password',
         'phone',
         'email',
+        'status',
+         'stripe_id',
+        'pm_type',
+        'pm_last_four',
+        'trial_ends_at',
         'trial_start',
         'trial_end',
-        'status',
     ];
+
+
+    public function hasActiveSubscription()
+    {
+        return $this->status === 'active';
+    }
+
+    // public function inTrial()
+    // {
+    //     return $this->trial_end && now()->lt($this->trial_end);
+    // }
+    public function inTrial()
+    {
+        return $this->trial_end && now()->lt($this->trial_end);
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -77,5 +98,9 @@ class User extends Authenticatable  implements MustVerifyEmail
 public function company()
 {
     return $this->belongsTo(Company::class);
+}
+public function transactions()
+{
+    return $this->hasMany(SubscriptionTransaction::class);
 }
 }

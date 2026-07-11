@@ -198,7 +198,7 @@
 
             </div> --}}
 
-            <a href="{{ route('contact.page') }}" class="btn btn-launch">
+            <a href="{{ route('contact') }}" class="btn btn-launch">
                 Contact Us
             </a>
 

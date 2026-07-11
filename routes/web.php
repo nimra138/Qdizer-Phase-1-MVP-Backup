@@ -11,14 +11,24 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\BillingController;
+use Laravel\Cashier\Http\Controllers\WebhookController;
+use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\ContactController;
 
 use Illuminate\Support\Facades\Route;
 
     
-Route::view('/about', 'user.home.coming')->name('about.page');
-Route::view('/features', 'user.home.coming')->name('features.page');
-Route::view('/pricing', 'user.home.coming')->name('pricing.page');
-Route::view('/contact', 'user.home.coming')->name('contact.page');
+Route::view('/about', 'user.home.about')->name('about');
+Route::view('/features', 'user.home.features')->name('features');
+Route::view('/pricing', 'user.home.pricing')->name('pricing');
+Route::view('/contact', 'user.home.contact')->name('contact');
+Route::post('/contact', [ContactController::class,'store'])->name('contact.store');
+Route::get('/quotation/{quotation_number}', [QuotationController::class, 'publicView'])
+    ->name('quotation.public');
+
+
+
     Auth::routes(['verify' => true]);
     Route::get('/', function () {
         return view('user.home.index');
@@ -35,18 +45,36 @@ Route::view('/contact', 'user.home.coming')->name('contact.page');
                 Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
                 Route::resource('services', ServiceController::class);
                 Route::resource('clients', ClientController::class);
-                Route::resource('quotations', QuotationController::class);
+                Route::resource('quotations', QuotationController::class)->middleware('auth');
+                Route::get('/quotation/{quotation}',[QuotationController::class,'show'])->name('quotation.show');
+                Route::get('/quotation/{quotation}/download', [QuotationController::class,'download'])->name('quotation.download');
+                Route::get('/quotation/pdfs', [QuotationController::class, 'pdfFiles'])->name('quotation.pdfs');
+                
                 // Route::get('/company', [CompanyController::class, 'index'])->name('company.index');
                 Route::get('/company-profile/view', [CompanyController::class, 'show'])->name('company.show');
                 Route::get('/company-profile', [CompanyController::class, 'edit'])->name('company.edit');
                 Route::post('/company-profile', [CompanyController::class, 'update'])->name('company.update');
-                Route::get('quotations/{id}/template',[QuotationController::class, 'template'])->name('quotations.template');
+                Route::get('quotations/{quotation}/template',[QuotationController::class, 'template'])->name('quotations.template');
+                Route::get('/subscription', function () {
+                    return view('user.subscription.index');
+                    })->name('main');
+
+
+                Route::get('/billing', [BillingController::class, 'index'])->name('billing');
+                Route::post('/subscribe', [BillingController::class, 'subscribe'])->name('subscribe');
+                Route::get('/billing/success', [BillingController::class, 'success'])->name('billing.success');
+                
                 Route::get('/subscription-expired', function () {
                     return view('user.subscription.expired');
-                })->name('subscription.expired');
-            });
-                
+                    })->name('subscription.expired');
+                    });
+                    
+                    Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
+                    // Route::post('/stripe/webhook', WebhookController::class);
 
+Route::middleware('auth')->group(function () {
+  
+});
 
     Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -61,8 +89,12 @@ Route::view('/contact', 'user.home.coming')->name('contact.page');
             Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
             // user 
             Route::get('/user', [AdminController::class, 'user'])->name('user');
-            Route::get('/user/{id}', [AdminController::class, 'show'])
-            ->name('users.show');
+            Route::get('/user/{id}', [AdminController::class, 'show'])->name('users.show');
+            Route::get('/contact-messages',[ContactController::class,'index'])->name('contact.index');
+
+            Route::get('/contact-messages/{contactMessage}', [ContactController::class,'show'])->name('contact.show');
+
+            Route::put('/contact-messages/{contactMessage}', [ContactController::class,'update']) ->name('contact.update');
 
             Route::post('logout', [AdminLoginController::class, 'destroy'])->name('logout');
         });

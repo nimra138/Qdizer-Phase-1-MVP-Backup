@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
    use App\Models\Client;
 use App\Models\Service;
 use App\Models\Quotation;
+
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class HomeController extends Controller
@@ -34,51 +36,103 @@ class HomeController extends Controller
     $services = Service::where('user_id', $userId)->count();
 
     $quotations = Quotation::where('user_id', $userId)->count();
+    
+    $pdfs = Quotation::where('user_id', auth()->id())
+    ->whereNotNull('pdf_path')
+    ->get();
 
-    // $revenue = Quotation::where('user_id', $userId)
-    //     ->where('status', 'final')
-    //     ->sum('total');
+foreach ($pdfs as $pdf) {
+    $pdf->url = Storage::url($pdf->pdf_path);
+    $pdf->size = Storage::disk('public')->exists($pdf->pdf_path)
+        ? round(Storage::disk('public')->size($pdf->pdf_path) / 1024, 2)
+        : 0;
+}
+    // $pdfs = Quotation::where('user_id', auth()->id())
+    // ->whereNotNull('pdf_path')
+    // ->latest()
+    // ->get()
+    // ->map(function ($quotation) {
+    //     return [
+    //         'name' => basename($quotation->pdf_path),
+    //         'path' => $quotation->pdf_path,
+    //         'size' => Storage::disk('public')->exists($quotation->pdf_path)
+    //             ? round(Storage::disk('public')->size($quotation->pdf_path) / 1024, 2)
+    //             : 0,
+    //         'last_modified' => Storage::disk('public')->exists($quotation->pdf_path)
+    //             ? date(
+    //                 'd M Y h:i A',
+    //                 Storage::disk('public')->lastModified($quotation->pdf_path)
+    //             )
+    //             : '-',
+    //         'url' => Storage::url($quotation->pdf_path),
+    //         'quotation_number' => $quotation->quotation_number,
+    //         'date' => $quotation->date,
+    //     ];
+    // });
 
     $recentQuotations = Quotation::where('user_id', $userId)
         ->with('client')
         ->latest()
         ->take(5)
         ->get();
+$user = auth()->user();
+   $daysLeft = 0;
+$hoursLeft = 0;
+$expiryDate = null;
+if ($user->status === 'active') {
 
-    // Trial Days
-    // $trialEnd = auth()->user()->trial_end;
+    // Subscription is active
+    $expiryDate = $user->trial_ends_at;
 
-    // $trialDays = $trialEnd
-    //     ? max(
-    //         Carbon::now()->diffInDays(
-    //             Carbon::parse($trialEnd),
-    //             false
-    //         ),
-    //         0
-    //     )
-    //     : 0;
-        $trialEnd = auth()->user()->trial_end;
+} else {
 
-        $daysLeft = 0;
-        $hoursLeft = 0;
+    // User is on free trial
+    $expiryDate = $user->trial_end;
+}
 
-        if ($trialEnd) {
+if ($expiryDate) {
 
-            $diff = Carbon::now()->diff(Carbon::parse($trialEnd));
+    $expiry = Carbon::parse($expiryDate);
 
-            $daysLeft = $diff->invert ? 0 : $diff->d;
-            $hoursLeft = $diff->invert ? 0 : $diff->h;
-        }
+    if ($expiry->isFuture()) {
+
+        $daysLeft = now()->diffInDays($expiry);
+        $hoursLeft = now()->copy()->addDays($daysLeft)->diffInHours($expiry);
+
+    }
+
+}
+
+
+
+        // $trialEnd = auth()->user()->trial_end;
+        // $status = auth()->user()->status;
+
+        // $daysLeft = 0;
+        // $hoursLeft = 0;
+        // if ($status === "status") {
+           
+        // }
+        // if ($trialEnd) {
+
+        //     $diff = Carbon::now()->diff(Carbon::parse($trialEnd));
+
+        //     $daysLeft = $diff->invert ? 0 : $diff->d;
+        //     $hoursLeft = $diff->invert ? 0 : $diff->h;
+        // }
 
     return view('user.dashboard.index', compact(
         'clients',
         'services',
         'quotations',
-        // 'revenue',
+        'pdfs',
+        
         'hoursLeft',
         'daysLeft',
         'recentQuotations',
-        // 'trialDays'
+        
+    'expiryDate'
+      
     ));
 
         // return view('user.dashboard.index');

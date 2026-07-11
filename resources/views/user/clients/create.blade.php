@@ -41,15 +41,30 @@
                         {{-- PHONE --}}
                         <div class="mb-3">
                             <label class="form-label">Phone Number *</label>
-                            <input type="text"
+                             <div class="input-group input-group-lg">
+
+                                <span class="input-group-text">
+                                    +971
+                                </span>
+
+                                <input
+                                    type="text"
+                                    name="phone_number"
+                                    class="form-control @error('phone_number') is-invalid @enderror"
+                                    placeholder="50 123 4567"
+                                    value="{{ old('phone_number') }}">
+
+                            </div>
+
+                            {{-- <input type="text"
                                    name="phone_number"
                                    value="{{ old('phone_number') }}"
                                    class="form-control @error('phone_number') is-invalid @enderror"
                                    placeholder="+923001234567">
 
                             <small class="text-muted">
-                                Must include country code (e.g. +971, +92)
-                            </small>
+                                Must include country code (e.g. +971)
+                            </small> --}}
 
                             @error('phone_number')
                                 <div class="text-danger small">{{ $message }}</div>

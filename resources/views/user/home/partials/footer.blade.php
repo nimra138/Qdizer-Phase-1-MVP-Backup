@@ -1,110 +1,171 @@
-<footer class="footer pt-5 pb-4">
+
+<section class="py-5 bg-dark text-white">
 
     <div class="container">
 
-        <div class="row g-4">
+        <div class="row g-5">
 
-            <!-- Brand -->
             <div class="col-lg-4">
-                 <a href="{{ route('home') }}" class="navbar-brand d-flex align-items-center">
 
-    <img src="{{ asset('user/img/logo.png') }}"
-         alt="QDizer Logo"
-         style="height:40px; width:auto;">
+                <h3 class="fw-bold text-warning">
 
-</a>
+                    QDizer
 
-                <p class="text- mt-3">
-                    Smart quotation SaaS for businesses to create,
-                    export and share quotations instantly.
+                </h3>
+
+                <p class="text-light">
+
+                    Modern quotation management software
+                    for contractors, suppliers,
+                    consultants and service businesses.
+
                 </p>
+
+                <div class="d-flex gap-3 fs-4">
+
+                    <a href="#" class="text-white">
+
+                        <i class="bi bi-facebook"></i>
+
+                    </a>
+
+                    <a href="#" class="text-white">
+
+                        <i class="bi bi-linkedin"></i>
+
+                    </a>
+
+                    <a href="#" class="text-white">
+
+                        <i class="bi bi-instagram"></i>
+
+                    </a>
+
+                    <a href="#" class="text-white">
+
+                        <i class="bi bi-youtube"></i>
+
+                    </a>
+
+                </div>
+
             </div>
 
-            <!-- Pages -->
             <div class="col-lg-2">
-                <h6 class="fw-bold mb-3">Pages</h6>
+
+                <h5>
+
+                    Product
+
+                </h5>
 
                 <ul class="list-unstyled">
 
-                    <li>
-                        <a href="{{ route('home') }}">
-                            Home
+                    <li class="mb-2">
+                        <a href="{{ route('features') }}"
+                           class="text-light text-decoration-none">
+                            Features
                         </a>
                     </li>
 
-                    <li>
-                        <a href="{{ route('about.page') }}">
+                    <li class="mb-2">
+                        <a href="{{ route('pricing') }}"
+                           class="text-light text-decoration-none">
+                            Pricing
+                        </a>
+                    </li>
+
+                    <li class="mb-2">
+                        <a href="{{ route('about') }}"
+                           class="text-light text-decoration-none">
                             About
                         </a>
                     </li>
 
                     <li>
-                        <a href="{{ route('features.page') }}">
-                            Features
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="{{ route('pricing.page') }}">
-                            Pricing
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="{{ route('contact.page') }}">
+                        <a href="{{ route('contact') }}"
+                           class="text-light text-decoration-none">
                             Contact
                         </a>
                     </li>
 
                 </ul>
+
             </div>
 
-            <!-- Account -->
             <div class="col-lg-3">
-                <h6 class="fw-bold mb-3">
-                    Account
-                </h6>
+
+                <h5>
+
+                    Resources
+
+                </h5>
 
                 <ul class="list-unstyled">
 
-                    <li>
-                        <a href="{{ route('login') }}">
-                            Login
-                        </a>
-                    </li>
+                    <li class="mb-2">Documentation</li>
 
-                    <li>
-                        <a href="{{ route('register') }}">
-                            Register
-                        </a>
-                    </li>
+                    <li class="mb-2">Help Center</li>
+
+                    <li class="mb-2">Privacy Policy</li>
+
+                    <li>Terms & Conditions</li>
 
                 </ul>
+
             </div>
 
-            <!-- Contact -->
             <div class="col-lg-3">
-                <h6 class="fw- mb-3">
+
+                <h5>
+
                     Contact
-                </h6>
 
-                <p class="text- mb-1">
-                    support@qdizer.com
+                </h5>
+
+                <p class="mb-2">
+
+                    📧 support@qdizer.com
+
                 </p>
 
-                <p class="text-">
-                    +92 300 0000000
+                <p class="mb-2">
+
+                    📞 +971 50 123 4567
+
                 </p>
+
+                <p>
+
+                    📍 Dubai, UAE
+
+                </p>
+
             </div>
 
         </div>
 
-        <hr>
+        <hr class="border-secondary my-5">
 
-        <div class="text-center text-muted small">
-            © {{ date('Y') }} QDizer — Smart Quotation SaaS
+        <div class="row">
+
+            <div class="col-md-6">
+
+                © {{ date('Y') }}
+                QDizer.
+                All Rights Reserved.
+
+            </div>
+
+            <div class="col-md-6 text-md-end">
+
+                Designed by
+                <strong>Amberbyte</strong>
+
+            </div>
+
         </div>
 
     </div>
 
-</footer>
+</section>

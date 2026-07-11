@@ -14,7 +14,9 @@ class Quotation extends Model
         'vat',
         'total',
         'notes',
-        'pdf_path'
+        'pdf_path',
+        'template',
+        'pdf_generated_at'
     ];
 
     public function client()
@@ -34,5 +36,6 @@ class Quotation extends Model
     {
         return 'quotation_number';
     }
+   
     
 }

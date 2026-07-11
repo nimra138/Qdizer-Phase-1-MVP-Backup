@@ -7,19 +7,32 @@ use App\Models\Client;
 use App\Models\Service;
 use App\Models\Company;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
 class QuotationController extends Controller
 {
-    public function index()
-    {
-        $quotations = Quotation::where('user_id', auth()->id())
-            ->with('client')
-            ->latest()
-            ->paginate(10);
+    public function index(Request $request)
+{
+    $search = $request->search;
 
-        return view('user.quotations.index', compact('quotations'));
-    }
+    $quotations = Quotation::where('user_id', auth()->id())
+        ->with('client')
+        ->when($search, function ($query) use ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('quotation_number', 'like', "%{$search}%")
+                  ->orWhereHas('client', function ($clientQuery) use ($search) {
+                      $clientQuery->where('client_name', 'like', "%{$search}%");
+                  });
+            });
+        })
+        ->latest()
+        ->paginate(10);
+
+    return view('user.quotations.index', compact('quotations'));
+}
 
     public function create()
     {
@@ -39,7 +52,7 @@ class QuotationController extends Controller
         ]);
 
         DB::beginTransaction();
-
+    // $quotation->template = $request->template;
         try {
             $quotation = Quotation::create([
                 'user_id' => auth()->id(),
@@ -50,6 +63,7 @@ class QuotationController extends Controller
                 'vat' => 0,
                 'total' => 0,
                 'notes' => $request->notes,
+                'template' => $request->template,
             ]);
 
             $subtotal = 0;
@@ -96,16 +110,15 @@ class QuotationController extends Controller
         }
     }
 
-    public function show(Quotation $quotation)
-    {
-        $quotation->load(['client', 'items.service']);
+    public function show($quotation)
+{
+    $quotation = Quotation::with(['client', 'items.service'])
+        ->where('quotation_number', $quotation)
+        ->where('user_id', Auth::id())
+        ->firstOrFail();
 
-        if ($quotation->user_id !== auth()->id()) {
-            abort(403);
-        }
-
-        return view('user.quotations.show', compact('quotation'));
-    }
+    return view('user.quotations.show', compact('quotation'));
+}
 
     public function edit(string $id)
     {
@@ -156,6 +169,7 @@ class QuotationController extends Controller
             'subtotal' => $subtotal,
             'vat' => $vat,
             'total' => $grandTotal,
+            'template' => $request->template,
         ]);
 
         return redirect()
@@ -213,4 +227,162 @@ class QuotationController extends Controller
 
         return view('user.quotations.template', compact('quotation'));
     }
+//     public function download(Quotation $quotation)
+// {
+//     $quotation->load(['client', 'items']);
+
+//     $fileName = 'quotations/' . $quotation->quotation_number . '.pdf';
+
+//     // If PDF already exists, download it
+//     if (
+//         $quotation->pdf_path &&
+//         Storage::disk('public')->exists($quotation->pdf_path)
+//     ) {
+//         return response()->download(
+//             storage_path('app/public/' . $quotation->pdf_path)
+//         );
+//     }
+
+//     // Select PDF template
+//     $view = match ($quotation->template) {
+//         'minimal' => 'user.quotations.pdf.default',
+//         'contractor' => 'user.quotations.pdf.contractor',
+//         default => 'user.quotations.pdf.corporate',
+//     };
+
+//     // Generate PDF
+//     $pdf = Pdf::loadView($view, compact('quotation'));
+
+//     // Save PDF
+//     Storage::disk('public')->put($fileName, $pdf->output());
+
+//     // Update database
+//     $quotation->update([
+//         'pdf_path' => $fileName,
+//         'pdf_generated_at' => now(),
+//     ]);
+
+//     // Download newly generated PDF
+//     return response()->download(
+//         storage_path('app/public/' . $fileName)
+//     );
+// }
+// public function download(Quotation $quotation)
+// {
+//     dd($quotation);
+//     die;
+
+//   dd($quotation->load([
+//     'client',
+//     'items.service',
+//     'user.companyProfile'
+// ])->toArray());
+
+//     $fileName = 'quotations/' . $quotation->quotation_number . '.pdf';
+
+//     $view = match ($quotation->template) {
+//         'minimal'    => 'user.quotations.pdf.default',
+//         'contractor' => 'user.quotations.pdf.contractor',
+//         default      => 'user.quotations.pdf.corporate',
+//     };
+
+//     $pdf = Pdf::loadView($view, compact('quotation'));
+
+//     Storage::disk('public')->put($fileName, $pdf->output());
+
+//     $quotation->update([
+//         'pdf_path' => $fileName,
+//         'pdf_generated_at' => now(),
+//     ]);
+
+//     return response()->download(
+//         storage_path('app/public/' . $fileName)
+//     );
+// }
+public function download($quotation)
+{
+    $quotation = Quotation::with([
+        'client',
+        'items.service',
+        'user.companyProfile'
+    ])
+    ->where('quotation_number', $quotation)
+    ->where('user_id', auth()->id())
+    ->firstOrFail();
+
+    // Delete old PDF if it exists
+    if (
+        !empty($quotation->pdf_path) &&
+        Storage::disk('public')->exists($quotation->pdf_path)
+    ) {
+        Storage::disk('public')->delete($quotation->pdf_path);
+    }
+
+    // PDF filename
+    $fileName = 'quotations/' . $quotation->quotation_number . '.pdf';
+
+    // Select template
+    $view = match ($quotation->template) {
+        'minimal'    => 'user.quotations.pdf.default',
+        'contractor' => 'user.quotations.pdf.contractor',
+        default      => 'user.quotations.pdf.corporate',
+    };
+
+    // Generate PDF
+    $pdf = Pdf::loadView($view, compact('quotation'));
+
+    // Save new PDF
+    Storage::disk('public')->put($fileName, $pdf->output());
+
+    // Update database
+    $quotation->update([
+        'pdf_path' => $fileName,
+        'pdf_generated_at' => now(),
+    ]);
+
+    // Make sure file exists
+    if (!Storage::disk('public')->exists($fileName)) {
+        return back()->with('error', 'PDF could not be generated.');
+    }
+
+    // Download the newly generated PDF
+    return response()->download(
+        Storage::disk('public')->path($fileName),
+        $quotation->quotation_number . '.pdf'
+    );
+}
+
+public function publicView($quotation_number)
+{
+    $quotation = Quotation::with([
+        'client',
+        'items.service',
+        'user.companyProfile'
+    ])
+    ->where('quotation_number', $quotation_number)
+    ->firstOrFail();
+
+    return view('user.home.quotation', compact('quotation'));
+}
+// public function pdfFiles()
+// {
+//     $files = Storage::disk('public')->files('quotations');
+
+//     $pdfs = [];
+
+//     foreach ($files as $file) {
+//         $pdfs[] = [
+//             'name' => basename($file),
+//             'path' => $file,
+//             'size' => round(Storage::disk('public')->size($file) / 1024, 2), // KB
+//             'last_modified' => date(
+//                 'd M Y h:i A',
+//                 Storage::disk('public')->lastModified($file)
+//             ),
+//             'url' => Storage::url($file),
+//         ];
+//     }
+
+//     return view('user.quotations.pdfFiles', compact('pdfs'));
+// }
 }

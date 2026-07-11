@@ -49,22 +49,25 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
       @error('company')
         <small class="text-danger">{{ $message }}</small>
       @enderror
+      {{-- phone  --}}
+      <div class="mb-2">
+    <div class="input-group">
+        <span class="input-group-text">+971</span>
 
-      <!-- Phone -->
-      <input 
-        class="form-control mb-2" 
-        type="phone"
-        name="phone"
-        placeholder="Phone #"
-        value="{{ old('phone') }}"
-        required
-      >
+        <input
+            type="tel"
+            name="phone"
+            class="form-control"
+            placeholder="50 123 4567"
+            value="{{ old('phone') }}"
+            required
+        >
+    </div>
 
-      @error('phone')
+    @error('phone')
         <small class="text-danger">{{ $message }}</small>
-      @enderror
-
-      
+    @enderror
+</div>
       <!-- Email -->
       <input 
         class="form-control mb-2" 

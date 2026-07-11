@@ -25,17 +25,18 @@
             ← Back
         </a>
 
-        {{-- PDF --}}
-        <a href="#"
-           class="btn btn-primary rounded-3">
-            Download PDF
-        </a>
-
+        
         {{-- PRINT --}}
-        <button onclick="window.print()"
+        {{-- <button onclick="window.print()"
                 class="btn btn-light border rounded-3">
             Print
-        </button>
+        </button> --}}
+        <a href="{{ route('quotation.download',$quotation) }}"
+class="btn btn-primary">
+
+Download PDF
+
+</a>
 
     </div>
 

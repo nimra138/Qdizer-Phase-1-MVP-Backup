@@ -37,50 +37,61 @@ class ClientController extends Controller
     /**
      * Store new client
      */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'client_name' => 'required',
-            'phone_number' => 'required|regex:/^\+[1-9]\d{7,14}$/',
-            'email' => 'nullable|email',
-            'address' => 'nullable',
-            'notes' => 'nullable',
-        ]);
-        $nameExists = Client::where('user_id', auth()->id())
-            ->where('client_name', $request->client_name)
-            ->exists();
+  public function store(Request $request)
+{   
+    // dd($request->all());
 
-        $phoneExists = Client::where('user_id', auth()->id())
-            ->where('phone_number', $request->phone_number)
-            ->exists();
+    $request->validate([
+        'client_name' => 'required',
+       'phone_number' => [
+                        'required',
+                        'regex:/^(50|52|54|55|56|58)\s?\d{3}\s?\d{4}$/',
+                    ],
+        'email' => 'nullable|email',
+        'address' => 'nullable',
+        'notes' => 'nullable',
+    ]);
 
-        if ($nameExists || $phoneExists) {
-            $errors = [];
+    // Format phone number
+    $phone = '+971 ' . preg_replace('/\s+/', ' ', trim($request->phone_number));
 
-            if ($nameExists) {
-                $errors['client_name'] = 'This client name already exists.';
-            }
+   $nameExists = Client::where('user_id', auth()->id())
+    ->whereRaw('LOWER(client_name) = ?', [strtolower($request->client_name)])
+    ->exists();
 
-            if ($phoneExists) {
-                $errors['phone_number'] = 'This phone number already exists.';
-            }
+    $phoneExists = Client::where('user_id', auth()->id())
+        ->where('phone_number', $phone)
+        ->exists();
 
-            return back()
-                ->withInput()
-                ->withErrors($errors);
-}
-        auth()->user()->clients()->create([
-            'client_name' => $request->client_name,
-            'phone_number' => $request->phone_number,
-            'email' => $request->email,
-            'address' => $request->address,
-            'notes' => $request->notes,
-        ]);
+    if ($nameExists || $phoneExists) {
 
-        return redirect()
-            ->route('clients.index')
-            ->with('success', 'Client created successfully');
+        $errors = [];
+
+        if ($nameExists) {
+            $errors['client_name'] = 'This client name already exists.';
+        }
+
+        if ($phoneExists) {
+            $errors['phone_number'] = 'This phone number already exists.';
+        }
+
+        return back()
+            ->withInput()
+            ->withErrors($errors);
     }
+
+    auth()->user()->clients()->create([
+        'client_name' => $request->client_name,
+        'phone_number' => $phone,
+        'email' => $request->email,
+        'address' => $request->address,
+        'notes' => $request->notes,
+    ]);
+
+    return redirect()
+        ->route('clients.index')
+        ->with('success', 'Client created successfully');
+}
 
     
     public function show(string $id)
