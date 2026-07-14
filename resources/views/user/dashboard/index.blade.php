@@ -4,6 +4,13 @@
 
 @section('content')
 
+@php
+    // dd($daysLeft);
+    // dd(\Carbon\Carbon::parse($daysLeft)->format('d') );
+    
+    // echo $daysLeft . ' ' . Str::plural('Day', $daysLeft);
+    // die;
+@endphp
 <div class="container-fluid py-4">
 
     {{-- =========================
@@ -141,117 +148,102 @@
         </div>
 
         {{-- Trial / Subscription --}}
-        <div class="col-xl-3 col-md-6">
+<div class="col-xl-3 col-md-6">
 
-            <div class="card border-0 shadow-sm rounded-4 h-100">
+    <div class="card border-0 shadow-sm rounded-4 h-100">
 
-                <div class="card-body">
+        <div class="card-body">
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
 
-                        <small class="text-muted text-uppercase">
-                            Account Status
-                        </small>
+                <small class="text-muted text-uppercase">
+                    Account Status
+                </small>
 
-                        @if(auth()->user()->status == 'active')
+                @if($subscription)
 
-                            <span class="badge bg-success">
-                                Active
-                            </span>
+                    @if($subscription->onGracePeriod())
 
-                        @else
+                        <span class="badge bg-warning">
+                            Cancelling
+                        </span>
 
-                            <span class="badge bg-warning text-dark">
-                                Free Trial
-                            </span>
+                    @elseif($subscription->valid())
 
-                        @endif
+                        <span class="badge bg-success">
+                            Active
+                        </span>
 
-                    </div>
+                    @elseif($subscription->onTrial())
 
-                    @if(auth()->user()->status == 'active')
-
-                        {{-- <h3 class="fw-bold text-success mb-1">
-
-                            {{ $daysLeft }}
-
-                            <small class="fs-6">
-                                Days
-                            </small>
-
-                        </h3> --}}
-
-                        <p class="text-muted mb-3">
-                            Subscription Remaining
-                        </p>
-
-                        <div class="small text-muted">
-
-                            <div class="mb-1">
-
-                                <strong>Expiry Date</strong>
-
-                            </div>
-
-                            {{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
-
-                        </div>
-
-                        <div class="progress mt-3" style="height:8px;">
-
-                            <div
-                                class="progress-bar bg-success"
-                                style="width: {{ min(($daysLeft / 30) * 100,100) }}%">
-
-                            </div>
-
-                        </div>
+                        <span class="badge bg-info">
+                            Trial
+                        </span>
 
                     @else
 
-                        <h3 class="fw-bold text-warning mb-1">
-
-                            {{ $daysLeft }}
-
-                            <small class="fs-6">
-                                Days
-                            </small>
-
-                        </h3>
-
-                        <p class="text-muted mb-3">
-                            Trial Remaining
-                        </p>
-
-                        <div class="small text-muted">
-
-                            <div class="mb-1">
-
-                                <strong>Trial Ends</strong>
-
-                            </div>
-
-                            {{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
-
-                        </div>
-
-                        <div class="progress mt-3" style="height:8px;">
-
-                            <div
-                                class="progress-bar bg-warning"
-                                style="width: {{ min(($daysLeft / 7) * 100,100) }}%">
-
-                            </div>
-
-                        </div>
+                        <span class="badge bg-secondary">
+                            Expired
+                        </span>
 
                     @endif
+
+                @else
+
+                    <span class="badge bg-secondary">
+                        Free Trial
+                    </span>
+
+                @endif
+
+            </div>
+
+            <h3 class="fw-bold {{ $subscription ? 'text-success' : 'text-warning' }} mb-1">
+
+                {{ $daysLeft }}
+
+                <small class="fs-6">
+                    Days
+                </small>
+
+            </h3>
+
+            <p class="text-muted mb-3">
+
+                {{ $subscription ? 'Subscription Remaining' : 'Trial Remaining' }}
+
+            </p>
+
+            <div class="small text-muted">
+
+                <div class="mb-1">
+
+                    <strong>
+
+                        {{ $subscription ? 'Expires On' : 'Trial Ends' }}
+
+                    </strong>
+
+                </div>
+
+                {{ $expiryDate ? \Carbon\Carbon::parse($expiryDate)->format('d M Y') : '--' }}
+
+            </div>
+
+            <div class="progress mt-3" style="height:8px;">
+
+                <div class="progress-bar {{ $subscription ? 'bg-success' : 'bg-warning' }}"
+                     style="width: {{ $subscription ? min(($daysLeft / 30) * 100,100) : min(($daysLeft / 7) * 100,100) }}%">
 
                 </div>
 
             </div>
 
         </div>
+
+    </div>
+
+</div>
 
     </div>
 
@@ -262,7 +254,7 @@
             {{-- =========================
         TOTAL REVENUE
     ========================== --}}
-    <div class="col-lg-4">
+    {{-- <div class="col-lg-4">
 
         <div class="card border-0 shadow-sm rounded-4 h-100">
 
@@ -330,7 +322,7 @@
 
         </div>
 
-    </div>
+    </div> --}}
 
     {{-- =========================
         RECENT QUOTATIONS
@@ -706,7 +698,7 @@
 
 </div>
 
-{{-- Footer --}}
+{{-- Footer
 <div class="text-center mt-5">
 
     <small class="text-muted">
@@ -715,7 +707,7 @@
 
     </small>
 
-</div>
+</div> --}}
 
 </div>
 

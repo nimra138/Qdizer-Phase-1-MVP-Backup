@@ -9,7 +9,26 @@
 
                 <h3 class="fw-bold text-warning">
 
-                    QDizer
+                      <div class="sidebar-brand mb-4">
+
+    @if($setting?->company_logo)
+
+        <a  class="navbar-brand"  href="{{ route('main') }}">
+
+            <img src="{{ asset('storage/'.$setting->company_logo) }}"
+                 alt="QDizer"
+                 
+                  height="42">
+
+        </a>
+
+    @else
+
+        <a href="{{ route('home') }}">
+            <h5>{{ $setting->company_name ?? 'QDizer' }}</h5>
+        </a>
+
+    @endif
 
                 </h3>
 

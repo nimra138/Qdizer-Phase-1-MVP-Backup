@@ -3,11 +3,33 @@
     <div class="container">
 
         <!-- Logo -->
-        <a class="navbar-brand" href="{{ route('main') }}">
+        {{-- <a class="navbar-brand" href="{{ route('main') }}">
             <img src="{{ asset('user/img/logo.png') }}"
                  alt="QDizer"
                  height="42">
+        </a> --}}
+        <div class="sidebar-brand mb-4">
+
+    @if($setting?->company_logo)
+
+        <a  class="navbar-brand"  href="{{ route('main') }}">
+
+            <img src="{{ asset('storage/'.$setting->company_logo) }}"
+                 alt="QDizer"
+                 
+                  height="42">
+
         </a>
+
+    @else
+
+        <a href="{{ route('home') }}">
+            <h5>{{ $setting->company_name ?? 'QDizer' }}</h5>
+        </a>
+
+    @endif
+
+</div>
 
         <!-- Mobile -->
 

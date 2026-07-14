@@ -8,17 +8,17 @@
 
     <div class="col-12">
 
-        <div class="card shadow-sm">
+        <div class="ab-card">
 
-            <div class="card-header bg-white">
+            <div class="ab-card-header">
                 <h5 class="mb-0">Users List</h5>
             </div>
 
-            <div class="card-body table-responsive">
+            <div class="ab-card-body table-responsive">
 
-                <table class="table table-hover align-middle">
+                <table class="table ab-table align-middle mb-0">
 
-                    <thead class="table-light">
+                    <thead>
                         <tr>
                             <th>#</th>
                             <th>Name</th>
@@ -39,10 +39,10 @@
 
                         @php
                             $statusColor = match($user->status) {
-                                'active' => 'success',
-                                'trial' => 'warning',
-                                'expired' => 'danger',
-                                default => 'secondary'
+                                'active' => 'green',
+                                'trial' => 'amber',
+                                'expired' => 'red',
+                                default => 'blue'
                             };
                         @endphp
 
@@ -57,7 +57,7 @@
 
                             <!-- STATUS BADGE -->
                             <td>
-                                <span class="badge bg-{{ $statusColor }}">
+                                <span class="ab-badge ab-badge-{{ $statusColor }}">
                                     {{ ucfirst($user->status) }}
                                 </span>
                             </td>
@@ -75,7 +75,7 @@
                             </td>
                             <td>
                               <a href="{{ route('admin.users.show', $user->id) }}"
-                                class="btn btn-sm btn-dark">
+                                class="btn btn-sm ab-btn-view">
                                     View
                                 </a>
                             </td>
@@ -88,7 +88,7 @@
 
                 </table>
 
-                <div class="mt-3">
+                <div class="mt-3 px-3 pb-2">
                     {{ $users->links() }}
                 </div>
 

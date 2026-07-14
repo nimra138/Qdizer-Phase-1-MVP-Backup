@@ -66,8 +66,8 @@ class RegisterController extends Controller
     protected function create(array $data)
     {
         $phone = '+971 ' . $data['phone'];
-        dd($phone);
-        die;
+        // dd($phone);
+        // die;
         return User::create([
         'name' => $data['name'],
         'company' => $data['company'],

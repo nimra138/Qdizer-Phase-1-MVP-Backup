@@ -64,6 +64,8 @@ class QuotationController extends Controller
                 'total' => 0,
                 'notes' => $request->notes,
                 'template' => $request->template,
+                'public_token'    => Str::uuid(),
+                'link_expires_at' => now()->addDays(7),
             ]);
 
             $subtotal = 0;
@@ -352,37 +354,16 @@ public function download($quotation)
     );
 }
 
-public function publicView($quotation_number)
+public function publicView($token)
 {
-    $quotation = Quotation::with([
-        'client',
-        'items.service',
-        'user.companyProfile'
-    ])
-    ->where('quotation_number', $quotation_number)
-    ->firstOrFail();
+    $quotation = Quotation::where('public_token', $token)
+        ->with(['client', 'items'])
+        ->firstOrFail();
 
-    return view('user.home.quotation', compact('quotation'));
+    if ($quotation->link_expires_at && now()->greaterThan($quotation->link_expires_at)) {
+        return view('user.quotations.expired', compact('quotation'));
+    }
+
+    return view('user.quotations.public', compact('quotation'));
 }
-// public function pdfFiles()
-// {
-//     $files = Storage::disk('public')->files('quotations');
-
-//     $pdfs = [];
-
-//     foreach ($files as $file) {
-//         $pdfs[] = [
-//             'name' => basename($file),
-//             'path' => $file,
-//             'size' => round(Storage::disk('public')->size($file) / 1024, 2), // KB
-//             'last_modified' => date(
-//                 'd M Y h:i A',
-//                 Storage::disk('public')->lastModified($file)
-//             ),
-//             'url' => Storage::url($file),
-//         ];
-//     }
-
-//     return view('user.quotations.pdfFiles', compact('pdfs'));
-// }
 }

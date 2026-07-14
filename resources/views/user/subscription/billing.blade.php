@@ -1,238 +1,343 @@
+```blade
 @extends('user.partials.app')
 
 @section('title', 'Subscription & Billing')
 
 @section('content')
+
 @php
     $user = auth()->user();
 
-    $hasSubscription = $user->status === 'active';
+    $subscription = $subscription ?? null;
 
-    if ($hasSubscription) {
-        $expiryDate = $user->trial_ends_at;
-        $remainingDays = $expiryDate
-            ? now()->diffInDays(\Carbon\Carbon::parse($expiryDate), false)
-            : 0;
-    } else {
-        $expiryDate = $user->trial_end;
-        $remainingDays = $expiryDate
-            ? now()->diffInDays(\Carbon\Carbon::parse($expiryDate), false)
-            : 0;
-    }
+    $hasSubscription = $subscription && $subscription->valid();
 
-    $remainingDays = max(0, $remainingDays);
+    $isTrial = $subscription?->onTrial();
+
+    $transactions = $transactions ?? collect();
 @endphp
 
-<div class="billing-wrapper">
+<div class="billing-wrapper mb-5">
 
     {{-- HERO --}}
-    <div class="billing-hero">
+    <div class="billing-hero d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2>Subscription & Billing</h2>
-            <p>Manage your QDizer Pro plan, invoices, and renewals.</p>
+            <p class="text-muted mb-0">
+                Manage your QDizer subscription, invoices and payments.
+            </p>
         </div>
 
         @if(!$hasSubscription)
-        <form method="POST" action="{{ route('subscribe') }}">
-            @csrf
-            <button class="btn btn-accent px-4 py-3">
-                Upgrade Now
-            </button>
-        </form>
+            <form method="POST" action="{{ route('subscribe') }}">
+                @csrf
+                <button class="btn btn-primary px-4">
+                    Upgrade Now
+                </button>
+            </form>
         @endif
     </div>
 
     {{-- STATS --}}
     <div class="row g-4 mb-4">
 
-      <div class="col-xl-3 col-md-6">
-    <div class="billing-stat">
-        <div class="stat-icon">💎</div>
+        <div class="col-lg-3 col-md-6">
+            <div class="billing-stat card h-100">
+                <div class="card-body">
+                    <div class="fs-3 mb-2">💎</div>
 
-        <small>Current Plan</small>
+                    <small class="text-muted">
+                        Current Plan
+                    </small>
 
-        <h4>
-            {{ $hasSubscription ? 'QDizer Pro' : 'Free Trial' }}
-        </h4>
-    </div>
-</div>
-
-       {{-- <div class="col-xl-3 col-md-6">
-    <div class="billing-stat">
-
-        <div class="stat-icon">⏳</div>
-
-        <small>
-            {{ $hasSubscription ? 'Subscription Remaining' : 'Trial Remaining' }}
-        </small>
-
-        <h4>
-            {{ $remainingDays }} Days
-        </h4>
-
-    </div>
-</div> --}}
-
-        <div class="col-xl-3 col-md-6">
-
-    <div class="billing-stat">
-
-        <div class="stat-icon">📊</div>
-
-        <small>Status</small>
-
-        <h4>
-
-            @if($hasSubscription)
-
-                <span class="status-active">
-                    Active
-                </span>
-
-            @else
-
-                <span class="status-inactive">
-                    Trial
-                </span>
-
-            @endif
-
-        </h4>
-
-    </div>
-
-</div>
-        <div class="col-xl-3 col-md-6">
-
-    <div class="billing-stat">
-
-        <div class="stat-icon">📅</div>
-
-        <small>
-
-            {{ $hasSubscription ? 'Subscription Expires' : 'Trial Ends' }}
-
-        </small>
-
-        <h4>
-
-            {{ $expiryDate
-                ? \Carbon\Carbon::parse($expiryDate)->format('d M Y')
-                : '--' }}
-
-        </h4>
-
-    </div>
-
-</div>
-    {{-- MAIN SECTION --}}
-    <div class="row g-4">
-
-        {{-- Pricing --}}
-        <div class="col-lg-8">
-            <div class="pricing-card">
-                <div class="plan-badge">PRO PLAN</div>
-
-                <h2>QDizer Pro</h2>
-
-                <div class="price-box">
-                    79
-                    <span>AED / month</span>
+                    <h4 class="mt-2">
+                        {{ $hasSubscription ? 'QDizer Pro' : 'Free Trial' }}
+                    </h4>
                 </div>
-
-                <p class="vat-text">
-                    VAT Included • Cancel Anytime
-                </p>
-
-                <ul class="feature-list">
-                    <li>✓ Unlimited Quotations</li>
-                    <li>✓ Client Management</li>
-                    <li>✓ Service Management</li>
-                    <li>✓ Premium PDF Export</li>
-                    <li>✓ WhatsApp Sharing</li>
-                    <li>✓ Priority Support</li>
-                </ul>
-
-                @if(!$hasSubscription)
-                    <form method="POST" action="{{ route('subscribe') }}">
-                        @csrf
-                        <button class="subscribe-btn">
-                            Subscribe / Renew
-                        </button>
-                    </form>
-                @else
-                    <button class="active-btn">
-                        Subscription Active
-                    </button>
-                @endif
             </div>
         </div>
 
-        {{-- Usage --}}
-        {{-- <div class="col-lg-4">
-            <div class="usage-box card-ui">
-                <h5>Usage This Month</h5>
+        <div class="col-lg-3 col-md-6">
+            <div class="billing-stat card h-100">
+                <div class="card-body">
 
-                <div class="usage-item">
-                    <small>Quotations Generated</small>
-                    <div class="progress mt-2">
-                        <div class="progress-bar" style="width:65%"></div>
-                    </div>
-                    <strong>325 / Unlimited</strong>
+                    <div class="fs-3 mb-2">📊</div>
+
+                    <small class="text-muted">
+                        Status
+                    </small>
+
+                    <h4 class="mt-2">
+
+                        @if($hasSubscription)
+
+                            <span class="badge bg-success">
+                                {{ ucfirst($subscription->stripe_status) }}
+                            </span>
+
+                        @else
+
+                            <span class="badge bg-warning text-dark">
+                                Trial
+                            </span>
+
+                        @endif
+
+                    </h4>
+
                 </div>
+            </div>
+        </div>
 
-                <div class="usage-item">
-                    <small>Clients Added</small>
-                    <div class="progress mt-2">
-                        <div class="progress-bar" style="width:40%"></div>
-                    </div>
-                    <strong>42 Clients</strong>
+        {{-- <div class="col-lg-3 col-md-6">
+            <div class="billing-stat card h-100">
+                <div class="card-body">
+
+                    <div class="fs-3 mb-2">💳</div>
+
+                    <small class="text-muted">
+                        Payment Method
+                    </small>
+
+                    <h4 class="mt-2">
+
+                        @if($user->pm_type)
+
+                            {{ strtoupper($user->pm_type) }}
+                            **** {{ $user->pm_last_four }}
+
+                        @else
+
+                            --
+
+                        @endif
+
+                    </h4>
+
                 </div>
             </div>
         </div> --}}
 
+        <div class="col-lg-3 col-md-6">
+            <div class="billing-stat card h-100">
+                <div class="card-body">
+
+                    <div class="fs-3 mb-2">📅</div>
+
+                    <small class="text-muted">
+                        Renewal
+                    </small>
+
+                    <h4 class="mt-2">
+
+                        @if($hasSubscription)
+
+                            @if($subscription->ends_at)
+
+                                {{ $subscription->ends_at->format('d M Y') }}
+
+                            @else
+
+                                Auto Renew
+
+                            @endif
+
+                        @else
+
+                            --
+
+                        @endif
+
+                    </h4>
+
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    {{-- Billing History --}}
-    {{-- <div class="billing-history">
-        <div class="history-header">
-            <h4>Billing History</h4>
-            <p>Your recent invoices and payments</p>
+    {{-- PLAN CARD --}}
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="row align-items-center">
+
+                <div class="col-lg-8">
+
+                    <span class="badge bg-primary mb-2">
+                        PRO PLAN
+                    </span>
+
+                    <h2 class="mb-3">
+                        QDizer Pro
+                    </h2>
+
+                    <h1 class="display-5 fw-bold">
+                        79 AED
+                        <small class="fs-5 text-muted">
+                            / Month
+                        </small>
+                    </h1>
+
+                    <p class="text-muted">
+                        VAT Included • Cancel Anytime
+                    </p>
+
+                    <ul class="list-unstyled mt-4">
+
+                        <li>✔ Unlimited Quotations</li>
+                        <li>✔ Unlimited Clients</li>
+                        <li>✔ Unlimited Services</li>
+                        <li>✔ Premium PDF Export</li>
+                        <li>✔ WhatsApp Sharing</li>
+                        <li>✔ Priority Support</li>
+
+                    </ul>
+
+                </div>
+
+                <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+
+                    @if(!$hasSubscription)
+
+                        <form method="POST" action="{{ route('subscribe') }}">
+                            @csrf
+
+                            <button class="btn btn-primary btn-lg">
+                                Subscribe Now
+                            </button>
+
+                        </form>
+
+                    @else
+
+                        <button class="btn btn-success btn-lg" disabled>
+                            Subscription Active
+                        </button>
+
+                    @endif
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    {{-- @if($subscription && $subscription->valid())
+
+<form action="{{ route('billing.cancel') }}"
+      method="POST">
+
+    @csrf
+
+    <button
+        class="btn btn-danger"
+        onclick="return confirm('Cancel your subscription?')">
+
+        Cancel Subscription
+
+    </button>
+
+</form>
+
+@endif --}}
+    {{-- PAYMENT HISTORY --}}
+    {{-- <div class="card shadow-sm">
+
+        <div class="card-header bg-white">
+
+            <h4 class="mb-0">
+                Billing History
+            </h4>
+
         </div>
 
         <div class="table-responsive">
-            <table class="table billing-table">
+
+            <table class="table table-hover align-middle mb-0">
+
                 <thead>
+
                     <tr>
+
                         <th>Invoice</th>
+
                         <th>Date</th>
+
                         <th>Amount</th>
+
                         <th>Status</th>
-                        <th>Download</th>
+
                     </tr>
+
                 </thead>
 
                 <tbody>
-                    <tr>
-                        <td>#INV-1001</td>
-                        <td>02 Jul 2026</td>
-                        <td>79 AED</td>
-                        <td><span class="paid-badge">Paid</span></td>
-                        <td><button class="btn btn-sm btn-primary">PDF</button></td>
-                    </tr>
 
-                    <tr>
-                        <td>#INV-1000</td>
-                        <td>02 Jun 2026</td>
-                        <td>79 AED</td>
-                        <td><span class="paid-badge">Paid</span></td>
-                        <td><button class="btn btn-sm btn-primary">PDF</button></td>
-                    </tr>
+                    @forelse($transactions as $transaction)
+
+                        <tr>
+
+                            <td>
+                                {{ $transaction->stripe_invoice_id }}
+                            </td>
+
+                            <td>
+                                {{ optional($transaction->paid_at)->format('d M Y') }}
+                            </td>
+
+                            <td>
+                                {{ $transaction->currency }}
+                                {{ number_format($transaction->total,2) }}
+                            </td>
+
+                            <td>
+
+                                <span class="badge bg-success">
+
+                                    {{ ucfirst($transaction->status) }}
+
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+
+                            <td colspan="4" class="text-center py-5">
+
+                                No payment history found.
+
+                            </td>
+
+                        </tr>
+
+                    @endforelse
+
                 </tbody>
+
             </table>
+
         </div>
+
+        @if(method_exists($transactions,'links'))
+
+            <div class="card-footer bg-white">
+
+                {{ $transactions->links() }}
+
+            </div>
+
+        @endif
+
     </div> --}}
 
 </div>
-@endsection
 
+@endsection
+```

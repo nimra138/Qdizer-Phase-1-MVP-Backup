@@ -275,126 +275,132 @@ Contact Form
 
             <div class="col-lg-5">
 
-                <div class="card border-0 shadow rounded-4 mb-4">
+    <div class="card border-0 shadow rounded-4 mb-4">
 
-                    <div class="card-body p-4">
+        <div class="card-body p-4">
 
-                        <h4 class="fw-bold mb-4">
+            <h4 class="fw-bold mb-4">
+                Contact Information
+            </h4>
 
-                            Contact Information
 
-                        </h4>
+            <div class="mb-4">
 
-                        <div class="mb-4">
+                <h6 class="fw-bold">
+                    📧 Email
+                </h6>
 
-                            <h6 class="fw-bold">
-
-                                📧 Email
-
-                            </h6>
-
-                            <p class="text-muted mb-0">
-
-                                support@qdizer.com
-
-                            </p>
-
-                        </div>
-
-                        <div class="mb-4">
-
-                            <h6 class="fw-bold">
-
-                                📞 Phone
-
-                            </h6>
-
-                            <p class="text-muted mb-0">
-
-                                +971 50 123 4567
-
-                            </p>
-
-                        </div>
-
-                        <div class="mb-4">
-
-                            <h6 class="fw-bold">
-
-                                📍 Office
-
-                            </h6>
-
-                            <p class="text-muted mb-0">
-
-                                Business Bay<br>
-                                Dubai, UAE
-
-                            </p>
-
-                        </div>
-
-                        <div>
-
-                            <h6 class="fw-bold">
-
-                                🕒 Working Hours
-
-                            </h6>
-
-                            <p class="text-muted mb-0">
-
-                                Monday - Friday<br>
-
-                                9:00 AM - 6:00 PM
-
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="card border-0 shadow rounded-4">
-
-                    <div class="card-body p-4">
-
-                        <h4 class="fw-bold mb-4">
-
-                            Why Contact Us?
-
-                        </h4>
-
-                        <ul class="list-unstyled">
-
-                            <li class="mb-3">
-                                ✅ Product Demo Requests
-                            </li>
-
-                            <li class="mb-3">
-                                ✅ Technical Support
-                            </li>
-
-                            <li class="mb-3">
-                                ✅ Billing Assistance
-                            </li>
-
-                            <li class="mb-3">
-                                ✅ Partnership Opportunities
-                            </li>
-
-                            <li>
-                                ✅ Feature Suggestions
-                            </li>
-
-                        </ul>
-
-                    </div>
-
-                </div>
+                <p class="text-muted mb-0">
+                    {{ $setting->company_email ?? 'support@qdizer.com' }}
+                </p>
 
             </div>
+
+
+
+            <div class="mb-4">
+
+                <h6 class="fw-bold">
+                    📞 Phone
+                </h6>
+
+                <p class="text-muted mb-0">
+                    {{ $setting->company_phone ?? '+971 50 123 4567' }}
+                </p>
+
+            </div>
+
+
+
+            <div class="mb-4">
+
+                <h6 class="fw-bold">
+                    📍 Office
+                </h6>
+
+                <p class="text-muted mb-0">
+
+                    {!! nl2br(e($setting->company_address ?? 'Business Bay, Dubai, UAE')) !!}
+
+                </p>
+
+            </div>
+
+
+
+            <div>
+
+                <h6 class="fw-bold">
+                    🕒 Working Hours
+                </h6>
+
+                <p class="text-muted mb-0">
+
+                    Monday - Friday<br>
+
+                    9:00 AM - 6:00 PM
+
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+
+    <div class="card border-0 shadow rounded-4">
+
+
+        <div class="card-body p-4">
+
+
+            <h4 class="fw-bold mb-4">
+                Why Contact Us?
+            </h4>
+
+
+            <ul class="list-unstyled">
+
+
+                <li class="mb-3">
+                    ✅ Product Demo Requests
+                </li>
+
+
+                <li class="mb-3">
+                    ✅ Technical Support
+                </li>
+
+
+                <li class="mb-3">
+                    ✅ Billing Assistance
+                </li>
+
+
+                <li class="mb-3">
+                    ✅ Partnership Opportunities
+                </li>
+
+
+                <li>
+                    ✅ Feature Suggestions
+                </li>
+
+
+            </ul>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
 
         </div>
 

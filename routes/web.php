@@ -15,6 +15,10 @@ use App\Http\Controllers\BillingController;
 use Laravel\Cashier\Http\Controllers\WebhookController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\SettingController;
+use App\Mail\SubscriptionActivatedMail;
+
+
 
 use Illuminate\Support\Facades\Route;
 
@@ -24,9 +28,7 @@ Route::view('/features', 'user.home.features')->name('features');
 Route::view('/pricing', 'user.home.pricing')->name('pricing');
 Route::view('/contact', 'user.home.contact')->name('contact');
 Route::post('/contact', [ContactController::class,'store'])->name('contact.store');
-Route::get('/quotation/{quotation_number}', [QuotationController::class, 'publicView'])
-    ->name('quotation.public');
-
+Route::get('/quote/{token}', [QuotationController::class, 'publicView'])->name('quotation.public');
 
 
     Auth::routes(['verify' => true]);
@@ -38,7 +40,7 @@ Route::get('/quotation/{quotation_number}', [QuotationController::class, 'public
             return view('user.dashboard.index');
             })->middleware(['auth', 'verified'])->name('dashboard');
             
-            Route::middleware(['auth', 'trial'])->group(function () {
+            Route::middleware(['auth', 'verified'])->group(function () {
                 Route::get('/home', [HomeController::class, 'index'])->name('home');
                 Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
                 Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -63,18 +65,36 @@ Route::get('/quotation/{quotation_number}', [QuotationController::class, 'public
                 Route::get('/billing', [BillingController::class, 'index'])->name('billing');
                 Route::post('/subscribe', [BillingController::class, 'subscribe'])->name('subscribe');
                 Route::get('/billing/success', [BillingController::class, 'success'])->name('billing.success');
+
+                Route::post('/subscribe', [BillingController::class, 'subscribe'])
+                    ->name('subscribe');
+
+                Route::get('/billing/success', [BillingController::class, 'success'])
+                    ->name('billing.success');
+
+                Route::post('/billing/cancel', [BillingController::class, 'cancel'])
+                    ->name('billing.cancel');
+
+                Route::post('/billing/resume', [BillingController::class, 'resume'])
+                    ->name('billing.resume');
                 
                 Route::get('/subscription-expired', function () {
                     return view('user.subscription.expired');
                     })->name('subscription.expired');
                     });
                     
-                    Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
+                    // Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
                     // Route::post('/stripe/webhook', WebhookController::class);
+                    
 
-Route::middleware('auth')->group(function () {
+                    Route::post('/stripe/webhook', [
+                        WebhookController::class,
+                        'handleWebhook',
+                    ]);
+
+// Route::middleware('auth')->group(function () {
   
-});
+// });
 
     Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -97,10 +117,56 @@ Route::middleware('auth')->group(function () {
             Route::put('/contact-messages/{contactMessage}', [ContactController::class,'update']) ->name('contact.update');
 
             Route::post('logout', [AdminLoginController::class, 'destroy'])->name('logout');
-        });
+
+            
+            // Route::get('/settings',[SettingController::class,'index'])->name('settings');
+            // Route::post('/settings/update',[SettingController::class,'update'])->name('admin.settings.update');
+         });
     });
         
+    
         
+    
+
+    Route::prefix('admin')->name('admin.')->controller(AdminController::class)->group(function () {
+
+            // Dashboard
+            // Route::get('/dashboard', 'dashboard')->name('dashboard');
+
+            // Users
+            Route::get('/users', 'user')->name('users');
+            Route::get('/users/{id}', 'show')->name('users.show');
+
+            // Clients
+            Route::get('/clients', 'clients')->name('clients');
+            Route::get('/clients/{id}', [AdminController::class,'showClient'])->name('clients.show');
+
+            // Services
+            Route::get('/services', 'services')->name('services');
+            Route::get('/services/{id}', [AdminController::class,'showService'])->name('services.show');
+
+            // Quotations
+            Route::get('/quotations', 'quotations')->name('quotations');
+            Route::get('/quotations/{id}', [AdminController::class,'showQuotation'])->name('quotations.show');
+
+            // Subscriptions
+            Route::get('/subscriptions', 'subscriptions')->name('subscriptions');
+            Route::get('/subscriptions/{id}',[SubscriptionController::class,'subscriptionsshow'])->name('admin.subscriptions.show');
+            // Transactions
+            Route::get('/transactions', 'transactions')->name('transactions');
+
+            // Reports
+            Route::get('/reports', 'reports')->name('reports');
+
+            // Settings
+            Route::get('/settings', 'settings')->name('settings');
+            Route::post('/settings', 'updateSettings')->name('settings.update');
+
+            // Profile
+            Route::get('/profile', 'profile')->name('profile');
+            Route::post('/profile', 'updateProfile')->name('profile.update');
+
+        }); 
     require __DIR__.'/auth.php';
     Auth::routes();
 

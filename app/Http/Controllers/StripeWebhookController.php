@@ -2,269 +2,171 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\StripeEvent;
+use App\Mail\PaymentFailedMail;
+use App\Mail\PaymentSuccessMail;
+use App\Mail\SubscriptionActivatedMail;
+use App\Mail\SubscriptionCancelledMail;
 use App\Models\SubscriptionTransaction;
-use Carbon\Carbon;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Stripe\Exception\SignatureVerificationException;
-use Stripe\Webhook;
+use Illuminate\Support\Facades\Mail;
+use Laravel\Cashier\Http\Controllers\WebhookController as CashierWebhookController;
 
-class StripeWebhookController extends Controller
+class StripeWebhookController extends CashierWebhookController
 {
-    public function handle(Request $request)
+    public function handleWebhook(Request $request)
     {
-        // Log::info('Stripe webhook received');
-        $payload = $request->getContent();
-        $signature = $request->header('Stripe-Signature');
+        // Let Cashier update subscriptions & subscription_items
+        $response = parent::handleWebhook($request);
 
-        try {
+        $payload = json_decode($request->getContent(), true);
 
-            $event = Webhook::constructEvent(
-                $payload,
-                $signature,
-                env('STRIPE_WEBHOOK_SECRET')
-            );
+        switch ($payload['type'] ?? null) {
 
-        } catch (SignatureVerificationException $e) {
+            /*
+            |--------------------------------------------------------------------------
+            | Subscription Created
+            |--------------------------------------------------------------------------
+            */
 
-            return response()->json([
-                'message' => 'Invalid Signature'
-            ], 400);
+            case 'customer.subscription.created':
 
-        } catch (\Exception $e) {
+                $subscription = $payload['data']['object'];
 
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 400);
+                $user = User::where('stripe_id', $subscription['customer'])->first();
 
+                if (! $user) {
+
+                    Log::warning('User not found for subscription.created', [
+                        'customer' => $subscription['customer'],
+                    ]);
+
+                    break;
+                }
+
+                Mail::to($user->email)
+                    ->send(new SubscriptionActivatedMail($user));
+
+                break;
+
+            /*
+            |--------------------------------------------------------------------------
+            | Invoice Paid
+            |--------------------------------------------------------------------------
+            */
+
+            case 'invoice.payment_succeeded':
+
+                $invoice = $payload['data']['object'];
+
+                $user = User::where('stripe_id', $invoice['customer'])->first();
+
+                if (! $user) {
+
+                    Log::warning('User not found for invoice.payment_succeeded', [
+                        'customer' => $invoice['customer'],
+                    ]);
+
+                    break;
+                }
+
+                // Prevent duplicate transactions
+                if (
+                    SubscriptionTransaction::where(
+                        'stripe_invoice_id',
+                        $invoice['id']
+                    )->exists()
+                ) {
+                    break;
+                }
+
+                $transaction = SubscriptionTransaction::create([
+
+                    'user_id' => $user->id,
+
+                    'stripe_invoice_id' => $invoice['id'],
+
+                    'stripe_payment_intent' => $invoice['payment_intent'],
+
+                    'stripe_subscription_id' => $invoice['subscription'],
+
+                    'currency' => strtoupper($invoice['currency']),
+
+                    'amount' => $invoice['subtotal'] / 100,
+
+                    'vat' => ($invoice['total'] - $invoice['subtotal']) / 100,
+
+                    'total' => $invoice['total'] / 100,
+
+                    'status' => 'paid',
+
+                    'payment_method' => 'card',
+
+                    'paid_at' => now(),
+
+                    'payload' => json_encode($invoice),
+
+                ]);
+
+                Mail::to($user->email)
+                    ->send(new PaymentSuccessMail($user, $transaction));
+
+                break;
+
+            /*
+            |--------------------------------------------------------------------------
+            | Payment Failed
+            |--------------------------------------------------------------------------
+            */
+
+            case 'invoice.payment_failed':
+
+                $invoice = $payload['data']['object'];
+
+                $user = User::where('stripe_id', $invoice['customer'])->first();
+
+                if (! $user) {
+
+                    Log::warning('User not found for invoice.payment_failed', [
+                        'customer' => $invoice['customer'],
+                    ]);
+
+                    break;
+                }
+
+                Mail::to($user->email)
+                    ->send(new PaymentFailedMail($user));
+
+                break;
+
+            /*
+            |--------------------------------------------------------------------------
+            | Subscription Cancelled
+            |--------------------------------------------------------------------------
+            */
+
+            case 'customer.subscription.deleted':
+
+                $subscription = $payload['data']['object'];
+
+                $user = User::where('stripe_id', $subscription['customer'])->first();
+
+                if (! $user) {
+
+                    Log::warning('User not found for subscription.deleted', [
+                        'customer' => $subscription['customer'],
+                    ]);
+
+                    break;
+                }
+
+                Mail::to($user->email)
+                    ->send(new SubscriptionCancelledMail($user));
+
+                break;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Idempotency
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            StripeEvent::where('event_id', $event->id)->exists()
-        ) {
-            return response()->json([
-                'duplicate' => true
-            ]);
-        }
-
-        StripeEvent::create([
-            'event_id' => $event->id,
-            'event_type' => $event->type
-        ]);
-
-        DB::beginTransaction();
-
-        try {
-
-            switch ($event->type) {
-
-                /*
-                |--------------------------------------------------------------------------
-                | Checkout Completed
-                |--------------------------------------------------------------------------
-                */
-
-                case 'checkout.session.completed':
-
-                    $session = $event->data->object;
-
-                    $user = User::where( 
-                        'email',
-                        $session->customer_details->email
-                    )->first();
-
-                    if ($user) {
-
-                        $user->update([
-
-                            'stripe_customer_id' => $session->customer,
-
-                            'status' => 'active',
-                            
-                            'trial_ends_at' => now()->addDays(30),
-
-                        ]);
-
-                    }
-
-                    break;
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Subscription Created / Updated
-                |--------------------------------------------------------------------------
-                */
-
-                case 'customer.subscription.created':
-
-                case 'customer.subscription.updated':
-
-                    $subscription = $event->data->object;
-
-                    $user = User::where(
-                        'stripe_customer_id',
-                        $subscription->customer
-                    )->first();
-
-                    if ($user) {
-
-                        $user->update([
-
-                            'stripe_subscription_id' => $subscription->id,
-
-                            'subscription_status' => $subscription->status,
-
-                            'subscription_start' => Carbon::createFromTimestamp(
-                                $subscription->current_period_start
-                            ),
-
-                            'subscription_end' => Carbon::createFromTimestamp(
-                                $subscription->current_period_end
-                            )
-
-                        ]);
-
-                    }
-
-                    break;
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Invoice Paid
-                |--------------------------------------------------------------------------
-                */
-
-                case 'invoice.payment_succeeded':
-
-                    $invoice = $event->data->object;
-
-                    $user = User::where(
-                        'stripe_customer_id',
-                        $invoice->customer
-                    )->first();
-
-                    if ($user) {
-
-                        SubscriptionTransaction::create([
-
-                            'user_id' => $user->id,
-
-                            'stripe_invoice_id' => $invoice->id,
-
-                            'stripe_payment_intent' => $invoice->payment_intent,
-
-                            'stripe_subscription_id' => $invoice->subscription,
-
-                            'currency' => strtoupper($invoice->currency),
-
-                            'amount' => $invoice->subtotal / 100,
-
-                            'vat' => ($invoice->total - $invoice->subtotal) / 100,
-
-                            'total' => $invoice->total / 100,
-
-                            'status' => 'paid',
-
-                            'payment_method' => 'card',
-
-                            'paid_at' => now(),
-
-                            'payload' => json_encode($invoice)
-
-                        ]);
-
-                        $user->update([
-                            'subscription_status' => 'active'
-                        ]);
-
-                    }
-
-                    break;
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Payment Failed
-                |--------------------------------------------------------------------------
-                */
-
-                case 'invoice.payment_failed':
-
-                    $invoice = $event->data->object;
-
-                    $user = User::where(
-                        'stripe_customer_id',
-                        $invoice->customer
-                    )->first();
-
-                    if ($user) {
-
-                        $user->update([
-                            'subscription_status' => 'past_due'
-                        ]);
-
-                    }
-
-                    break;
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Subscription Deleted
-                |--------------------------------------------------------------------------
-                */
-
-                case 'customer.subscription.deleted':
-
-                    $subscription = $event->data->object;
-
-                    $user = User::where(
-                        'stripe_customer_id',
-                        $subscription->customer
-                    )->first();
-
-                    if ($user) {
-
-                        $user->update([
-
-                            'subscription_status' => 'inactive',
-
-                            'subscription_end' => now()
-
-                        ]);
-
-                    }
-
-                    break;
-            }
-
-            DB::commit();
-
-        } catch (\Throwable $e) {
-
-            DB::rollBack();
-
-            Log::error($e);
-
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 500);
-
-        }
-
-        return response()->json([
-            'success' => true
-        ]);
+        return $response;
     }
 }

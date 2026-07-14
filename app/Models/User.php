@@ -27,7 +27,7 @@ class User extends Authenticatable  implements MustVerifyEmail
         'phone',
         'email',
         'status',
-         'stripe_id',
+        'stripe_id',
         'pm_type',
         'pm_last_four',
         'trial_ends_at',
@@ -103,4 +103,54 @@ public function transactions()
 {
     return $this->hasMany(SubscriptionTransaction::class);
 }
+
+public function planName(): string
+{
+    $subscription = $this->subscription('default');
+
+    if (!$subscription) {
+        return 'Free Trial';
+    }
+
+    return 'QDizer Pro';
+}
+
+public function subscriptionStatus(): string
+{
+    $subscription = $this->subscription('default');
+
+    if (!$subscription) {
+        return 'Trial';
+    }
+
+    if ($subscription->onGracePeriod()) {
+        return 'Cancelling';
+    }
+
+    if ($subscription->valid()) {
+        return 'Active';
+    }
+
+    if ($subscription->onTrial()) {
+        return 'Trial';
+    }
+
+    return 'Expired';
+}
+
+public function subscriptionStatusColor(): string
+{
+    return match ($this->subscriptionStatus()) {
+        'Active' => 'success',
+        'Cancelling' => 'warning',
+        'Trial' => 'info',
+        default => 'secondary',
+    };
+}
+// public function subscriptions()
+//     {
+//         return $this->hasMany(
+//             \Laravel\Cashier\SubscriptionTransaction::class
+//         );
+//     }
 }

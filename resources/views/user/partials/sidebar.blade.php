@@ -1,17 +1,17 @@
-
 @php
     $user = auth()->user();
-
-    $statusColor = match($user->status) {
-        'active' => 'success',
-        'trial' => 'warning',
-        'expired' => 'danger',
-        default => 'secondary'
-    };
+    $subscription = $user->subscription('default');
 
     $logo = asset('user/img/logo.png');
-@endphp
 
+    $expired = ! $subscription || ! $subscription->valid();
+@endphp
+@php
+    $subscription = auth()->user()->subscription('default');
+
+    $canCreateQuotation = $subscription &&
+        ($subscription->valid() || $subscription->onGracePeriod());
+@endphp
 <!-- Mobile Button + Brand Wrapper -->
 <div class="d-flex align-items-center justify-content-between d-lg-none px-3 py-2">
 
@@ -20,10 +20,6 @@
         <i class="fas fa-bars"></i>
     </button>
 
-    {{-- <!-- Brand (Mobile) -->
-    <div class="sidebar-brand mb-0">
-        <img src="{{ $logo }}" style="max-height:40px;">
-    </div> --}}
 
 </div>
 
@@ -34,12 +30,32 @@
     <!-- Brand -->
     <div>
 
-        <div class="sidebar-brand mb-4">
+        {{-- <div class="sidebar-brand mb-4">
             <a href="{{ route('home') }}">
             <img src="{{ $logo }}" style="max-height:60px;">
             </a>
-        </div>
+        </div> --}}
+        <div class="sidebar-brand mb-4">
 
+    @if($setting?->company_logo)
+
+        <a href="{{ route('home') }}">
+
+            <img src="{{ asset('storage/'.$setting->company_logo) }}"
+                 width="80"
+                 style="max-height:60px; object-fit:contain;">
+
+        </a>
+
+    @else
+
+        <a href="{{ route('home') }}">
+            <h5>{{ $setting->company_name ?? 'QDizer' }}</h5>
+        </a>
+
+    @endif
+
+</div>
         <!-- Menu -->
         <ul class="sidebar-menu">
 
@@ -71,38 +87,28 @@
     @endphp
 
     <div class="collapse sho" id="quotationMenu">
-        <ul class="submenu">
+                <ul class="submenu">
 
             <li>
-                <a href="{{route('quotations.index') }}"
-                   class="text-muted">
-                   
+                <a href="{{ route('quotations.index') }}">
                     <i class="fas fa-list"></i>
                     All Quotations
                 </a>
             </li>
-            {{-- <li>
-                <a href="{{ $expired ? 'javascript:void(0)' : route('quotations.index') }}"
-                   class="{{ $expired ? 'text-muted' : '' }}"
-                   @if($expired)
-                       onclick="alert('Your trial has expired. Please upgrade your subscription.')"
-                   @endif>
-                    <i class="fas fa-list"></i>
-                    All Quotations
-                </a>
-            </li> --}}
 
             <li>
-                <a href="{{ $expired ? 'javascript:void(0)' : route('quotations.create') }}"
-                   class="{{ $expired ? 'text-muted' : '' }}"
-                   @if($expired)
-                       onclick="alert('Your trial has expired. Please upgrade your subscription.')"
-                   @endif>
+                <a href="{{ $canCreateQuotation ? route('quotations.create') : 'javascript:void(0)' }}"
+                class="{{ $canCreateQuotation ? '' : 'text-muted' }}"
+                @unless($canCreateQuotation)
+                    onclick="alert('Your subscription has expired. Please renew to create new quotations.')"
+                @endunless>
+
                     <i class="fas fa-plus"></i>
                     Create Quotation
+
                 </a>
             </li>
-            {{-- <li><a href="{{ route('quotation.pdfs') }}"><i class="fas fa-user-group"></i> quotation.pdfs</a></li> --}}
+
         </ul>
         
     </div>
@@ -179,14 +185,16 @@
 
         <!-- Plan -->
         <div class="plan-box mb-3">
-            <small>Current Plan</small>
-            <h6>
-                <span class="badge bg-{{ $statusColor }}">
-                    {{ ucfirst($user->status) }}
-                </span>
-                Subscription 🚀
-            </h6>
-        </div>
+    <small>Current Plan</small>
+
+    <h6 class="mb-1">
+        {{ auth()->user()->planName() }}
+    </h6>
+
+    <span class="badge bg-{{ auth()->user()->subscriptionStatusColor() }}">
+        {{ auth()->user()->subscriptionStatus() }}
+    </span>
+</div>
 
         <!-- User Dropdown -->
         <div class="dropdown">
