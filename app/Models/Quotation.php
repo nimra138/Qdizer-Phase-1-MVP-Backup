@@ -16,6 +16,8 @@ class Quotation extends Model
         'notes',
         'pdf_path',
         'template',
+        'public_token',
+        'link_expires_at',
         'pdf_generated_at'
     ];
 
