@@ -21,35 +21,42 @@ class User extends Authenticatable  implements MustVerifyEmail
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'company',
-        'password',
-        'phone',
-        'email',
-        'status',
-        'stripe_id',
-        'pm_type',
-        'pm_last_four',
-        'trial_ends_at',
-        'trial_start',
-        'trial_end',
+    'name',
+    'company',
+    'password',
+    'phone',
+    'email',
+
+    'status',
+
+    'trial_start',
+    'trial_end',
+
+    'subscription_start',
+    'subscription_end',
+
+    'stripe_id',
+    
+
+    'pm_type',
+    'pm_last_four',
+    'trial_ends_at',
+];
+protected function casts(): array
+{
+    return [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+
+        'trial_start' => 'datetime',
+        'trial_end' => 'datetime',
+
+        'subscription_start' => 'datetime',
+        'subscription_end' => 'datetime',
+
+        'trial_ends_at' => 'datetime',
     ];
-
-
-    public function hasActiveSubscription()
-    {
-        return $this->status === 'active';
-    }
-
-    // public function inTrial()
-    // {
-    //     return $this->trial_end && now()->lt($this->trial_end);
-    // }
-    public function inTrial()
-    {
-        return $this->trial_end && now()->lt($this->trial_end);
-    }
-
+}
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -65,16 +72,8 @@ class User extends Authenticatable  implements MustVerifyEmail
      *
      * @return array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
-    protected $casts = [
-    'trial_end' => 'datetime',
-];
+
+
     public function services()
     {
         return $this->hasMany(Service::class);
@@ -83,10 +82,7 @@ class User extends Authenticatable  implements MustVerifyEmail
     {
         return $this->hasMany(Client::class);
     }
-    // public function company()
-    // {
-    //     return $this->hasOne(Company::class);
-    // }
+    
     public function companyProfile()
 {
     return $this->hasOne(Company::class);
@@ -104,53 +100,120 @@ public function transactions()
     return $this->hasMany(SubscriptionTransaction::class);
 }
 
-public function planName(): string
+public function isTrial(): bool
 {
-    $subscription = $this->subscription('default');
-
-    if (!$subscription) {
-        return 'Free Trial';
-    }
-
-    return 'QDizer Pro';
+    return $this->status === 'trial';
 }
 
-public function subscriptionStatus(): string
+public function isActive(): bool
 {
-    $subscription = $this->subscription('default');
-
-    if (!$subscription) {
-        return 'Trial';
-    }
-
-    if ($subscription->onGracePeriod()) {
-        return 'Cancelling';
-    }
-
-    if ($subscription->valid()) {
-        return 'Active';
-    }
-
-    if ($subscription->onTrial()) {
-        return 'Trial';
-    }
-
-    return 'Expired';
+    return $this->status === 'active';
 }
 
-public function subscriptionStatusColor(): string
+public function isPastDue(): bool
 {
-    return match ($this->subscriptionStatus()) {
-        'Active' => 'success',
-        'Cancelling' => 'warning',
-        'Trial' => 'info',
+    return $this->status === 'past_due';
+}
+
+public function isExpired(): bool
+{
+    return $this->status === 'expired';
+}
+
+public function isCancelled(): bool
+{
+    return $this->status === 'cancelled';
+}
+
+public function inTrial(): bool
+{
+    return $this->isTrial()
+        && $this->trial_end
+        && now()->lessThan($this->trial_end);
+}
+
+public function hasActiveSubscription(): bool
+{
+    return $this->isActive()
+        && $this->subscription_end
+        && now()->lessThanOrEqualTo($this->subscription_end);
+}
+
+public function canCreateQuotation(): bool
+{
+    return $this->inTrial() || $this->hasActiveSubscription();
+}
+
+public function canGeneratePdf(): bool
+{
+    return $this->canCreateQuotation();
+}
+
+public function canShareQuotation(): bool
+{
+    return $this->canCreateQuotation();
+}
+
+public function trialDaysLeft(): int
+{
+    if (!$this->trial_end) {
+        return 0;
+    }
+
+    return max(0, now()->diffInDays($this->trial_end, false));
+}
+
+public function subscriptionDaysLeft(): int
+{
+    if (!$this->subscription_end) {
+        return 0;
+    }
+
+    return max(0, now()->diffInDays($this->subscription_end, false));
+}
+
+public function badgeColor(): string
+{
+    return match ($this->status) {
+
+        'trial' => 'info',
+
+        'active' => 'success',
+
+        'past_due' => 'warning',
+
+        'expired' => 'danger',
+
+        'cancelled' => 'secondary',
+
         default => 'secondary',
     };
 }
-// public function subscriptions()
-//     {
-//         return $this->hasMany(
-//             \Laravel\Cashier\SubscriptionTransaction::class
-//         );
-//     }
+public function refreshSubscriptionStatus(): void
+{
+    if (
+        $this->status === 'trial'
+        && $this->trial_end
+        && now()->greaterThan($this->trial_end)
+    ) {
+
+        $this->update([
+            'status' => 'expired',
+        ]);
+
+        return;
+    }
+
+    if (
+        $this->status === 'active'
+        && $this->subscription_end
+        && now()->greaterThan($this->subscription_end)
+    ) {
+
+        $this->update([
+            'status' => 'expired',
+        ]);
+    }
+}
+
 }

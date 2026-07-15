@@ -29,14 +29,14 @@
                class="btn btn-primary rounded-3">
                 
             </a> --}}
-            <a class="btn btn-primary rounded-3" href="{{ $expired ? 'javascript:void(0)' : route('quotations.create') }}"
-                   class="{{ $expired ? 'text-muted' : '' }}"
-                   @if($expired)
-                       onclick="alert('Your trial has expired. Please upgrade your subscription.')"
-                   @endif>
-                    <i class="fas fa-plus"></i>
-                    Create Quotation
-                </a>
+           <a href="{{ auth()->user()->canCreateQuotation() ? route('quotations.create') : route('billing') }}"
+   class="btn btn-primary rounded-3 {{ auth()->user()->canCreateQuotation() ? '' : 'btn-warning' }}">
+
+    <i class="fas {{ auth()->user()->canCreateQuotation() ? 'fa-plus' : 'fa-crown' }}"></i>
+
+    {{ auth()->user()->canCreateQuotation() ? 'Create Quotation' : 'Upgrade Plan' }}
+
+</a>
         </div>
 
     </div>

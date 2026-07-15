@@ -68,10 +68,10 @@ class SubscriptionTransaction extends Model
 
 
 
-public function items()
-{
-    return $this->hasMany(
-        SubscriptionItem::class
-    );
-}
+// public function items()
+// {
+//     return $this->hasMany(
+//         SubscriptionItem::class
+//     );
+// }
 }

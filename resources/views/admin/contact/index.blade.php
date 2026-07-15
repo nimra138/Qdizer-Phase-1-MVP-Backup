@@ -8,7 +8,7 @@
 
     <div class="card border-0 shadow-sm">
 
-        <div class="card-header bg-white py-3">
+        <div class="card-header bg-whie py-3">
 
             <div class="d-flex justify-content-between align-items-center">
 
@@ -36,7 +36,7 @@
 
                 <table class="table table-hover align-middle mb-0">
 
-                    <thead class="table-light">
+                    <thead class="table-ligt">
 
                         <tr>
 

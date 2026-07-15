@@ -13,7 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-        'trial' => \App\Http\Middleware\CheckTrialStatus::class,
+            'subscription' => \App\Http\Middleware\CheckSubscription::class,
+        // 'trial' => \App\Http\Middleware\CheckTrialStatus::class,
     ]);
      $middleware->validateCsrfTokens(
         except: [

@@ -89,12 +89,45 @@ class AdminController extends Controller
     ));
 }
 
-    public function user()
-    {
-        $users = User::latest()->paginate(10);
+   public function user(Request $request)
+{
+    $query = User::query();
 
-        return view('admin.user.index', compact('users'));
+    if ($request->filled('search')) {
+        $search = $request->search;
+
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('company', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%")
+              ->orWhere('phone', 'like', "%{$search}%");
+        });
     }
+
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    if ($request->filled('verified')) {
+        if ($request->verified == 'yes') {
+            $query->whereNotNull('email_verified_at');
+        } else {
+            $query->whereNull('email_verified_at');
+        }
+    }
+
+    if ($request->filled('from')) {
+        $query->whereDate('created_at', '>=', $request->from);
+    }
+
+    if ($request->filled('to')) {
+        $query->whereDate('created_at', '<=', $request->to);
+    }
+
+    $users = $query->latest()->paginate(10)->withQueryString();
+
+    return view('admin.user.index', compact('users'));
+}
 
     public function show($id)
     {

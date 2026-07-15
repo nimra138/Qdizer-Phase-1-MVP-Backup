@@ -45,6 +45,19 @@ class StripeWebhookController extends CashierWebhookController
 
                     break;
                 }
+                $user->update([
+
+                    'status' => 'active',
+
+                    'subscription_start' => now(),
+
+                    'subscription_end' => Carbon::createFromTimestamp(
+                        $subscription->current_period_end
+                    ),
+
+                    // 'stripe_subscription_id' => $subscription->id,
+
+                ]);
 
                 Mail::to($user->email)
                     ->send(new SubscriptionActivatedMail($user));
@@ -132,6 +145,11 @@ class StripeWebhookController extends CashierWebhookController
                     Log::warning('User not found for invoice.payment_failed', [
                         'customer' => $invoice['customer'],
                     ]);
+                $user->update([
+
+                    'status' => 'past_due'
+
+                ]);
 
                     break;
                 }
@@ -161,7 +179,11 @@ class StripeWebhookController extends CashierWebhookController
 
                     break;
                 }
+                $user->update([
 
+                    'status' => 'cancelled'
+
+                ]);
                 Mail::to($user->email)
                     ->send(new SubscriptionCancelledMail($user));
 

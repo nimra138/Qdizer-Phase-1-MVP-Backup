@@ -52,22 +52,22 @@
             </a>
         </li>
 
-        {{-- <li class="nav-item mb-1">
-            <a href="{{ route('admin.subscriptions') }}"
-                class="nav-link {{ request()->routeIs('admin.subscriptions') ? 'active' : '' }}">
+       <li class="nav-item mb-1">
+            <a href="{{ route('admin.contact.index') }}"
+                class="nav-link {{ request()->routeIs('admin.subscriptions.index') ? 'active' : '' }}">
                 <i class="fas fa-credit-card me-2"></i>
-                Subscriptions
+                Contact Messages
             </a>
         </li>
-
+  
         <li class="nav-item mb-1">
-            <a href="{{ route('admin.transactions') }}"
-                class="nav-link {{ request()->routeIs('admin.transactions') ? 'active' : '' }}">
+            <a href="{{ route('admin.transactions.index') }}"
+                class="nav-link {{ request()->routeIs('admin.transactions.index') ? 'active' : '' }}">
                 <i class="fas fa-wallet me-2"></i>
                 Transactions
             </a>
         </li>
-
+{{--
         <li class="nav-item mb-1">
             <a href="{{ route('admin.reports') }}"
                 class="nav-link {{ request()->routeIs('admin.reports') ? 'active' : '' }}">

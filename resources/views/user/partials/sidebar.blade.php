@@ -96,18 +96,22 @@
                 </a>
             </li>
 
-            <li>
-                <a href="{{ $canCreateQuotation ? route('quotations.create') : 'javascript:void(0)' }}"
-                class="{{ $canCreateQuotation ? '' : 'text-muted' }}"
-                @unless($canCreateQuotation)
-                    onclick="alert('Your subscription has expired. Please renew to create new quotations.')"
-                @endunless>
+           <li>
+    <a href="{{ auth()->user()->canCreateQuotation() ? route('quotations.create') : 'javascript:void(0)' }}"
+       class="{{ auth()->user()->canCreateQuotation() ? '' : 'text-muted' }}"
+       @unless(auth()->user()->canCreateQuotation())
+           onclick="alert('Your subscription has expired. Please subscribe to continue.')"
+       @endunless>
 
-                    <i class="fas fa-plus"></i>
-                    Create Quotation
+        <i class="fas fa-plus"></i>
+        Create Quotation
 
-                </a>
-            </li>
+        @unless(auth()->user()->canCreateQuotation())
+            <i class="fas fa-lock ms-1"></i>
+        @endunless
+
+    </a>
+</li>
 
         </ul>
         
@@ -183,17 +187,51 @@
     <!-- Footer -->
     <div class="sidebar-footer">
 
-        <!-- Plan -->
         <div class="plan-box mb-3">
-    <small>Current Plan</small>
 
-    <h6 class="mb-1">
-        {{ auth()->user()->planName() }}
+    <small class="text-muted">Current Plan</small>
+
+    <h6 class="mb-2">
+        {{ auth()->user()->isActive() ? 'QDizer Pro' : 'Free Trial' }}
     </h6>
 
-    <span class="badge bg-{{ auth()->user()->subscriptionStatusColor() }}">
-        {{ auth()->user()->subscriptionStatus() }}
+    <span class="badge bg-{{ auth()->user()->badgeColor() }}">
+        {{ ucfirst(auth()->user()->status) }}
     </span>
+
+    @if(auth()->user()->isTrial())
+
+        <div class="small text-muted mt-2">
+            {{ auth()->user()->trialDaysLeft() }} days remaining
+        </div>
+
+    @elseif(auth()->user()->isActive())
+
+        <div class="small text-muted mt-2">
+            {{ auth()->user()->subscriptionDaysLeft() }} days remaining
+        </div>
+
+    @elseif(auth()->user()->isExpired())
+
+        <div class="small text-danger mt-2">
+            Subscription expired
+        </div>
+
+    @elseif(auth()->user()->isPastDue())
+
+        <div class="small text-warning mt-2">
+            Payment pending
+        </div>
+
+    @elseif(auth()->user()->isCancelled())
+
+        <div class="small text-secondary mt-2">
+            Subscription cancelled
+        </div>
+
+    @endif
+
+</div>
 </div>
 
         <!-- User Dropdown -->

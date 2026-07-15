@@ -16,9 +16,8 @@ use Laravel\Cashier\Http\Controllers\WebhookController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\TransactionController;
 use App\Mail\SubscriptionActivatedMail;
-
-
 
 use Illuminate\Support\Facades\Route;
 
@@ -47,15 +46,19 @@ Route::get('/quote/{token}', [QuotationController::class, 'publicView'])->name('
                 Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
                 Route::resource('services', ServiceController::class);
                 Route::resource('clients', ClientController::class);
-                Route::resource('quotations', QuotationController::class)->middleware('auth');
+                
+                // Route::resource('quotations', QuotationController::class);
+                Route::resource('quotations', QuotationController::class) ->except(['create', 'store']);
+                Route::get('/quotations/create', [QuotationController::class, 'create'])->middleware('subscription') ->name('quotations.create');
+                Route::post('/quotations', [QuotationController::class, 'store'])->middleware('subscription')->name('quotations.store');
                 Route::get('/quotation/{quotation}',[QuotationController::class,'show'])->name('quotation.show');
-                Route::get('/quotation/{quotation}/download', [QuotationController::class,'download'])->name('quotation.download');
+                Route::get('/quotation/{quotation}/download', [QuotationController::class,'download'])->middleware(['auth', 'subscription'])->name('quotation.download');
                 Route::get('/quotation/pdfs', [QuotationController::class, 'pdfFiles'])->name('quotation.pdfs');
                 
-                // Route::get('/company', [CompanyController::class, 'index'])->name('company.index');
                 Route::get('/company-profile/view', [CompanyController::class, 'show'])->name('company.show');
                 Route::get('/company-profile', [CompanyController::class, 'edit'])->name('company.edit');
                 Route::post('/company-profile', [CompanyController::class, 'update'])->name('company.update');
+
                 Route::get('quotations/{quotation}/template',[QuotationController::class, 'template'])->name('quotations.template');
                 Route::get('/subscription', function () {
                     return view('user.subscription.index');
@@ -82,9 +85,6 @@ Route::get('/quote/{token}', [QuotationController::class, 'publicView'])->name('
                     return view('user.subscription.expired');
                     })->name('subscription.expired');
                     });
-                    
-                    // Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
-                    // Route::post('/stripe/webhook', WebhookController::class);
                     
 
                     Route::post('/stripe/webhook', [
@@ -116,11 +116,10 @@ Route::get('/quote/{token}', [QuotationController::class, 'publicView'])->name('
 
             Route::put('/contact-messages/{contactMessage}', [ContactController::class,'update']) ->name('contact.update');
 
-            Route::post('logout', [AdminLoginController::class, 'destroy'])->name('logout');
+            Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+            Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');
 
-            
-            // Route::get('/settings',[SettingController::class,'index'])->name('settings');
-            // Route::post('/settings/update',[SettingController::class,'update'])->name('admin.settings.update');
+            Route::post('logout', [AdminLoginController::class, 'destroy'])->name('logout');
          });
     });
         
@@ -153,7 +152,7 @@ Route::get('/quote/{token}', [QuotationController::class, 'publicView'])->name('
             Route::get('/subscriptions', 'subscriptions')->name('subscriptions');
             Route::get('/subscriptions/{id}',[SubscriptionController::class,'subscriptionsshow'])->name('admin.subscriptions.show');
             // Transactions
-            Route::get('/transactions', 'transactions')->name('transactions');
+            // Route::get('/transactions', 'transactions')->name('transactions');
 
             // Reports
             Route::get('/reports', 'reports')->name('reports');

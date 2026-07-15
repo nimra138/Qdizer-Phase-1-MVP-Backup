@@ -75,7 +75,7 @@
 
                 <strong>Message</strong>
 
-                <div class="border rounded p-3 bg-light">
+                <div class="border rounded p-3 bg-ight">
 
                     {!! nl2br(e($contactMessage->message)) !!}
 

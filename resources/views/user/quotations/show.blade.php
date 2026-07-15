@@ -25,18 +25,27 @@
             ← Back
         </a>
 
-        
-        {{-- PRINT --}}
-        {{-- <button onclick="window.print()"
-                class="btn btn-light border rounded-3">
-            Print
-        </button> --}}
-        <a href="{{ route('quotation.download',$quotation) }}"
-class="btn btn-primary">
+       @if(auth()->user()->canGeneratePdf())
 
-Download PDF
+    <a href="{{ route('quotation.download', $quotation) }}"
+       class="btn btn-primary">
 
-</a>
+        <i class="fas fa-download me-1"></i>
+        Download PDF
+
+    </a>
+
+@else
+
+    <a href="{{ route('billing') }}"
+       class="btn btn-secondary">
+
+        <i class="fas fa-lock me-1"></i>
+        Subscribe to Download PDF
+
+    </a>
+
+@endif
 
     </div>
 
