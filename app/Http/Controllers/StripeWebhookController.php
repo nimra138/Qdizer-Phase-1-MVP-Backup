@@ -35,6 +35,7 @@ class StripeWebhookController extends CashierWebhookController
                 $subscription = $payload['data']['object'];
 
                 $user = User::where('stripe_id', $subscription['customer'])->first();
+                  $user->updateDefaultPaymentMethodFromStripe();
 
                 if (! $user) {
 
@@ -87,7 +88,7 @@ class StripeWebhookController extends CashierWebhookController
 
                     'stripe_invoice_id' => $invoice['id'],
 
-                    'stripe_payment_intent' => $invoice['payment_intent'],
+                    'stripe_payment_intent' => $invoice['payment_intent'] ?? null,
 
                     'stripe_subscription_id' => $invoice['subscription'],
 

@@ -130,6 +130,7 @@ class HomeController extends Controller
 
             $hoursLeft = now()->diffInHours($expiryDate) % 24;
         }
+        
 
         /*
         |--------------------------------------------------------------------------

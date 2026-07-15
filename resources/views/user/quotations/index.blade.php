@@ -191,33 +191,32 @@
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     @php
-    $phone = preg_replace('/[^0-9]/', '', $quotation->client->phone_number);
+                                        $phone = preg_replace('/[^0-9]/', '', $quotation->client->phone_number);
 
-    $publicUrl = route('quotation.public', $quotation->public_token);
+                                        $publicUrl = route('quotation.public', $quotation->public_token);
 
-    $text = "📄 Quotation: {$quotation->quotation_number}\n\n";
-    $text .= "Hello {$quotation->client->client_name},\n\n";
-    $text .= "Please review your quotation using the link below:\n";
-    $text .= $publicUrl . "\n\n";
-    $text .= "Thank you,\n";
-    $text .= $setting->company_name;
+                                        $text = "📄 Quotation: {$quotation->quotation_number}\n\n";
+                                        $text .= "Hello {$quotation->client->client_name},\n\n";
+                                        $text .= "Please review your quotation using the link below:\n";
+                                        $text .= $publicUrl . "\n\n";
+                                        $text .= "Thank you,\n";
+                                        $text .= $setting->company_name;
 
-    $waMessage = urlencode($text);
+                                        $waMessage = urlencode($text);
 
-    $disabledUrl = 'javascript:void(0)';
-    $expiredMessage = "alert('Your trial has expired. Please upgrade your subscription.')";
-@endphp
+                                        $disabledUrl = 'javascript:void(0)';
+                                        $expiredMessage =
+                                            "alert('Your trial has expired. Please upgrade your subscription.')";
+                                    @endphp
 
-<a href="{{ $expired ? $disabledUrl : 'https://wa.me/' . $phone . '?text=' . $waMessage }}"
-   target="{{ $expired ? '_self' : '_blank' }}"
-   class="btn btn-sm {{ $expired ? 'text-muted' : '' }}"
-   style="background:#25D366; color:#fff; border-radius:10px;"
-   @if($expired)
-       onclick="{{ $expiredMessage }}"
-   @endif>
-    <i class="fab fa-whatsapp"></i>
-</a>
-                                  
+                                    <a href="{{ $expired ? $disabledUrl : 'https://wa.me/' . $phone . '?text=' . $waMessage }}"
+                                        target="{{ $expired ? '_self' : '_blank' }}"
+                                        class="btn btn-sm {{ $expired ? 'text-muted' : '' }}"
+                                        style="background:#25D366; color:#fff; border-radius:10px;"
+                                        @if ($expired) onclick="{{ $expiredMessage }}" @endif>
+                                        <i class="fab fa-whatsapp"></i>
+                                    </a>
+
                                     {{-- Edit --}}
                                     <a href="{{ $expired ? $disabledUrl : route('quotations.edit', $quotation->id) }}"
                                         class="btn btn-sm {{ $expired ? 'text-muted' : '' }}"
@@ -226,7 +225,7 @@
                                         <i class="fas fa-pen"></i>
                                     </a>
 
-                                  
+
                                     {{-- @php
                                         $phone = preg_replace('/[^0-9]/', '', $quotation->client->phone_number);
 

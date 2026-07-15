@@ -42,7 +42,7 @@ class PaymentSuccessMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'user,email.payment-success',
+            view: 'user.email.payment-success',
         );
     }
 

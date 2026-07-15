@@ -3,38 +3,33 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class CheckTrialStatus
 {
      
-    public function handle(Request $request, Closure $next)
-    {
-        $user = auth()->user();
+    public function handle($request, Closure $next)
+{
+    $user = auth()->user();
 
-        if ($user) {
+    if ($user) {
 
-           if (
-            $user &&
-            $user->status === 'trial' &&
-            $user->trial_end &&
-            now()->gt($user->trial_end)
+        $subscription = $user->subscription('default');
+
+        if (
+            $subscription &&
+            $subscription->ends_at &&
+            Carbon::now()->greaterThan($subscription->ends_at) &&
+            $user->status !== 'expired'
         ) {
-            // Update only once
-            if ($user->status !== 'expired') {
-                $user->update([
-                    'status' => 'expired'
-                ]);
-            }
-
-                auth()->logout();
-
-                 return redirect()->route('subscription.expired')
-                ->with('error', 'Your trial has expired. Please upgrade.');
-            }
+            $user->update([
+                'status' => 'expired',
+            ]);
         }
-
-        return $next($request);
     }
+
+    return $next($request);
+}
 }
 
 // @if(auth()->user()->status == 'expired')

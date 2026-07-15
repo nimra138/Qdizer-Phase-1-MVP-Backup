@@ -43,7 +43,7 @@
     <div class="row g-4">
 
         {{-- Clients --}}
-        <div class="col-xl-3 col-md-6">
+        <div class="col-xl-4 col-md-6">
 
             <div class="card border-0 shadow-sm rounded-4 h-100">
 
@@ -78,7 +78,7 @@
         </div>
 
         {{-- Services --}}
-        <div class="col-xl-3 col-md-6">
+        <div class="col-xl-4 col-md-6">
 
             <div class="card border-0 shadow-sm rounded-4 h-100">
 
@@ -113,7 +113,7 @@
         </div>
 
         {{-- Quotations --}}
-        <div class="col-xl-3 col-md-6">
+        <div class="col-xl-4 col-md-6">
 
             <div class="card border-0 shadow-sm rounded-4 h-100">
 
@@ -148,7 +148,7 @@
         </div>
 
         {{-- Trial / Subscription --}}
-<div class="col-xl-3 col-md-6">
+{{-- <div class="col-xl-3 col-md-6">
 
     <div class="card border-0 shadow-sm rounded-4 h-100">
 
@@ -243,7 +243,7 @@
 
     </div>
 
-</div>
+</div> --}}
 
     </div>
 
