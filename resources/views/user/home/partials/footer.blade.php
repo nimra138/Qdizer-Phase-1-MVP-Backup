@@ -134,33 +134,23 @@
 
             </div>
 
-            <div class="col-lg-3">
+           <div class="col-lg-3">
 
-                <h5>
+    <h5>Contact</h5>
 
-                    Contact
+    <p class="mb-2">
+        📧 {{ $setting->company_email ?? 'support@qdizer.com' }}
+    </p>
 
-                </h5>
+    <p class="mb-2">
+        📞 {{ $setting->company_phone ?? '+971 50 123 4567' }}
+    </p>
 
-                <p class="mb-2">
+    <p class="mb-0">
+        📍 {!! nl2br(e($setting->company_address ?? 'Business Bay, Dubai, UAE')) !!}
+    </p>
 
-                    📧 support@qdizer.com
-
-                </p>
-
-                <p class="mb-2">
-
-                    📞 +971 50 123 4567
-
-                </p>
-
-                <p>
-
-                    📍 Dubai, UAE
-
-                </p>
-
-            </div>
+</div>
 
         </div>
 
