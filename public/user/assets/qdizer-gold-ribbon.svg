@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+  <defs>
+    <linearGradient id="mainGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F9D77A"/>
+      <stop offset="34%" stop-color="#E9B73E"/>
+      <stop offset="72%" stop-color="#D08A14"/>
+      <stop offset="100%" stop-color="#B46A08"/>
+    </linearGradient>
+    <linearGradient id="foldGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#9A5705"/>
+      <stop offset="100%" stop-color="#C47B0B"/>
+    </linearGradient>
+    <linearGradient id="softShine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity=".40"/>
+      <stop offset="40%" stop-color="#FFFFFF" stop-opacity=".08"/>
+      <stop offset="75%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="softShadow" x="-35%" y="-35%" width="170%" height="170%">
+      <feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#6A3B00" flood-opacity=".18"/>
+    </filter>
+  </defs>
+
+  <!-- discreet folds -->
+  <path d="M24 169 L44 189 L24 204 L13 193 Z" fill="url(#foldGold)"/>
+  <path d="M169 24 L189 44 L204 24 L193 13 Z" fill="url(#foldGold)"/>
+
+  <!-- slim elegant front band -->
+  <g filter="url(#softShadow)">
+    <path d="M18 157
+             Q18 150 24 144
+             L144 24
+             Q150 18 157 18
+             L222 83
+             Q222 90 216 96
+             L96 216
+             Q90 222 83 222
+             Z"
+          fill="url(#mainGold)"/>
+
+    <path d="M29 151 L151 29 Q157 23 163 29 L211 77 L77 211 L29 163 Q23 157 29 151 Z"
+          fill="url(#softShine)" opacity=".55"/>
+
+    <path d="M24 156 L156 24" stroke="#FFF6D8" stroke-opacity=".40" stroke-width="1.1"/>
+    <path d="M94 218 L218 94" stroke="#744000" stroke-opacity=".16" stroke-width="1"/>
+  </g>
+</svg>

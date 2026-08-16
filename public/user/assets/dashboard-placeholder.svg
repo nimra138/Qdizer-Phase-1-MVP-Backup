@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+<defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#092F3F"/><stop offset="1" stop-color="#0B455B"/></linearGradient></defs>
+<rect width="1280" height="720" fill="#F5F7F7"/>
+<rect width="1280" height="70" fill="url(#g)"/>
+<text x="48" y="44" fill="#fff" font-family="Arial" font-size="24" font-weight="700">QDizer Dashboard - Screenshot Placeholder</text>
+<rect x="30" y="100" width="200" height="580" rx="16" fill="#fff"/>
+<rect x="260" y="100" width="990" height="150" rx="16" fill="#fff"/>
+<rect x="260" y="280" width="620" height="400" rx="16" fill="#fff"/>
+<rect x="910" y="280" width="340" height="400" rx="16" fill="#fff"/>
+<text x="285" y="145" fill="#0B455B" font-family="Arial" font-size="28" font-weight="700">Replace with a real production screenshot</text>
+<text x="285" y="188" fill="#66747A" font-family="Arial" font-size="18">Dashboard, quotations, viewed status and accepted jobs</text>
+<g fill="#CE8914"><rect x="285" y="315" width="70" height="300" rx="8"/><rect x="380" y="400" width="70" height="215" rx="8"/><rect x="475" y="355" width="70" height="260" rx="8"/><rect x="570" y="465" width="70" height="150" rx="8"/><rect x="665" y="375" width="70" height="240" rx="8"/></g>
+</svg>

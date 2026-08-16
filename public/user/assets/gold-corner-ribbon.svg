@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" role="img" aria-label="Gold corner ribbon">
+  <defs>
+    <linearGradient id="frontGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFD56A"/>
+      <stop offset="0.28" stop-color="#F2B83F"/>
+      <stop offset="0.62" stop-color="#D89217"/>
+      <stop offset="1" stop-color="#B86A05"/>
+    </linearGradient>
+    <linearGradient id="frontHighlight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".58"/>
+      <stop offset=".32" stop-color="#FFFFFF" stop-opacity=".12"/>
+      <stop offset=".55" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="foldGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8C4B02"/>
+      <stop offset=".55" stop-color="#A85E03"/>
+      <stop offset="1" stop-color="#C9780A"/>
+    </linearGradient>
+    <filter id="shadow" x="-35%" y="-35%" width="170%" height="170%">
+      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#5B3300" flood-opacity=".28"/>
+    </filter>
+    <filter id="softInner" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.2" result="blur"/>
+      <feOffset dy="1" result="off"/>
+      <feComposite in="off" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="inner"/>
+      <feColorMatrix in="inner" values="0 0 0 0 0.33  0 0 0 0 0.17  0 0 0 0 0  0 0 0 .25 0"/>
+      <feComposite in2="SourceGraphic" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- rear folds -->
+  <path d="M28 158 L48 178 L24 196 L12 184 Z" fill="url(#foldGold)"/>
+  <path d="M158 28 L178 48 L196 24 L184 12 Z" fill="url(#foldGold)"/>
+
+  <!-- front ribbon crossing the corner -->
+  <g filter="url(#shadow)">
+    <path d="M22 156 L156 22 Q163 15 172 22 L198 48 Q205 57 198 64 L64 198 Q57 205 48 198 L22 172 Q15 165 22 156 Z"
+          fill="url(#frontGold)" filter="url(#softInner)"/>
+    <path d="M29 151 L151 29 Q160 20 170 28 L190 48 L48 190 L28 170 Q20 160 29 151 Z"
+          fill="url(#frontHighlight)" opacity=".66"/>
+    <path d="M26 159 L159 26" stroke="#FFF6D8" stroke-opacity=".48" stroke-width="1.4"/>
+    <path d="M61 198 L198 61" stroke="#7A3E00" stroke-opacity=".24" stroke-width="1.3"/>
+  </g>
+</svg>

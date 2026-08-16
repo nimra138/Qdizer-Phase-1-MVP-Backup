@@ -7,7 +7,8 @@
 
 @php
     $user = auth()->user();
-
+    // dd($subscription);
+    // die;
     $subscription = $subscription ?? null;
 
     $hasSubscription = $subscription && $subscription->valid();

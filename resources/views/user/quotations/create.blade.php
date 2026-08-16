@@ -72,6 +72,7 @@
                             <span>VAT (5%):</span>
                             <strong id="vat">0.00</strong>
                         </div>
+                        <input type="num" name="vat" value="" id="vat" disabled>
 
                         <div class="d-flex justify-content-between fs-5 mt-2">
                             <span>Total:</span>

@@ -46,6 +46,7 @@ class QuotationController extends Controller
 
     public function store(Request $request)
     {
+       
         $request->validate([
             'client_id' => 'required',
             'items' => 'required|array',
@@ -335,6 +336,13 @@ public function download($quotation)
     // Generate PDF
     $pdf = Pdf::loadView($view, compact('quotation'));
 
+    $pdf->setPaper('A4', 'portrait');
+     $pdf->setOptions([
+        'isHtml5ParserEnabled' => true,
+        'isRemoteEnabled' => true,
+        'defaultFont' => 'DejaVu Sans',
+    ]);
+
     // Save new PDF
     Storage::disk('public')->put($fileName, $pdf->output());
 
@@ -367,5 +375,30 @@ public function publicView($token)
     }
 
     return view('user.quotations.public', compact('quotation'));
+}
+
+public function preview($quotation)
+{
+    $quotation = Quotation::with([
+        'client',
+        'items.service',
+        'user.companyProfile'
+    ])
+    ->where('quotation_number', $quotation)
+    ->where('user_id', auth()->id())
+    ->firstOrFail();
+
+    $view = match ($quotation->template) {
+        'minimal'    => 'user.quotations.pdf.default',
+        'contractor' => 'user.quotations.pdf.contractor',
+        default      => 'user.quotations.pdf.corporate',
+    };
+
+    $pdf = Pdf::loadView($view, compact('quotation'))
+        ->setPaper('a4', 'portrait');
+
+    return $pdf->stream(
+        $quotation->quotation_number . '.pdf'
+    );
 }
 }

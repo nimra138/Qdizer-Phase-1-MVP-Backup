@@ -28,11 +28,14 @@ Route::view('/pricing', 'user.home.pricing')->name('pricing');
 Route::view('/contact', 'user.home.contact')->name('contact');
 Route::post('/contact', [ContactController::class,'store'])->name('contact.store');
 Route::get('/quote/{token}', [QuotationController::class, 'publicView'])->name('quotation.public');
+Route::get('/cop', function () {
+    return view('user.quotations.pdf.default');
+    })->name('main');
 
 
     Auth::routes(['verify' => true]);
-    Route::get('/', function () {
-        return view('user.home.index');
+    Route::get('/tamplate', function () {
+        return view('user.home.partials.template');
         })->name('main');
         
         Route::get('/dashboard', function () {
@@ -49,9 +52,13 @@ Route::get('/quote/{token}', [QuotationController::class, 'publicView'])->name('
                 
                 // Route::resource('quotations', QuotationController::class);
                 Route::resource('quotations', QuotationController::class) ->except(['create', 'store']);
-                Route::get('/quotations/create', [QuotationController::class, 'create'])->middleware('subscription') ->name('quotations.create');
+                Route::get('/quotation/create', [QuotationController::class, 'create'])->name('quotations.create');
                 Route::post('/quotations', [QuotationController::class, 'store'])->middleware('subscription')->name('quotations.store');
                 Route::get('/quotation/{quotation}',[QuotationController::class,'show'])->name('quotation.show');
+                Route::get(
+                            '/quotations/{quotation}/preview',
+                            [QuotationController::class, 'preview']
+                        )->name('quotations.preview');
                 Route::get('/quotation/{quotation}/download', [QuotationController::class,'download'])->middleware(['auth', 'subscription'])->name('quotation.download');
                 Route::get('/quotation/pdfs', [QuotationController::class, 'pdfFiles'])->name('quotation.pdfs');
                 

@@ -1,180 +1,144 @@
+<footer id="company">
+    <div class="wrap">
 
-<section class="py-5 bg-dark text-white">
+        <div class="footer-grid footer-grid-refined">
 
-    <div class="container">
+            {{-- Brand --}}
+            <div class="footer-brand">
 
-        <div class="row g-5">
+                @if ($setting?->company_logo)
+                    <a href="{{ route('main') }}">
+                        <img src="{{ asset('storage/' . $setting->company_logo) }}"
+                            alt="{{ $setting->company_name ?? 'QDizer' }}">
+                    </a>
+                @else
+                    <a href="{{ route('main') }}">
+                        <h3>{{ $setting->company_name ?? 'QDizer' }}</h3>
+                    </a>
+                @endif
 
-            <div class="col-lg-4">
-
-                <h3 class="fw-bold text-warning">
-
-                      <div class="sidebar-brand mb-4">
-
-    @if($setting?->company_logo)
-
-        <a  class="navbar-brand"  href="{{ route('main') }}">
-
-            <img src="{{ asset('storage/'.$setting->company_logo) }}"
-                 alt="QDizer"
-                 
-                  height="42">
-
-        </a>
-
-    @else
-
-        <a href="{{ route('home') }}">
-            <h5>{{ $setting->company_name ?? 'QDizer' }}</h5>
-        </a>
-
-    @endif
-
-                </h3>
-
-                <p class="text-light">
-
-                    Modern quotation management software
-                    for contractors, suppliers,
-                    consultants and service businesses.
-
+                <p>
+                    Professional quotations created, shared and tracked
+                    in seconds — built for service and contracting businesses.
                 </p>
 
-                <div class="d-flex gap-3 fs-4">
-
-                    <a href="#" class="text-white">
-
-                        <i class="bi bi-facebook"></i>
-
-                    </a>
-
-                    <a href="#" class="text-white">
-
-                        <i class="bi bi-linkedin"></i>
-
-                    </a>
-
-                    <a href="#" class="text-white">
-
-                        <i class="bi bi-instagram"></i>
-
-                    </a>
-
-                    <a href="#" class="text-white">
-
-                        <i class="bi bi-youtube"></i>
-
-                    </a>
-
+                <div class="footer-badges">
+                    <span>🇦🇪 Made in UAE</span>
+                    <span>Secure & encrypted</span>
+                    <span>WhatsApp-first</span>
                 </div>
 
             </div>
 
-            <div class="col-lg-2">
 
-                <h5>
+            {{-- Product --}}
+            <div>
 
-                    Product
+                <h4>Product</h4>
 
-                </h5>
+                <a href="{{ route('features') }}">
+                    Features
+                </a>
 
-                <ul class="list-unstyled">
+                <a href="{{ route('pricing') }}">
+                    Templates
+                </a>
 
-                    <li class="mb-2">
-                        <a href="{{ route('features') }}"
-                           class="text-light text-decoration-none">
-                            Features
-                        </a>
-                    </li>
+                <a href="{{ route('pricing') }}">
+                    Pricing
+                </a>
 
-                    <li class="mb-2">
-                        <a href="{{ route('pricing') }}"
-                           class="text-light text-decoration-none">
-                            Pricing
-                        </a>
-                    </li>
-
-                    <li class="mb-2">
-                        <a href="{{ route('about') }}"
-                           class="text-light text-decoration-none">
-                            About
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="{{ route('contact') }}"
-                           class="text-light text-decoration-none">
-                            Contact
-                        </a>
-                    </li>
-
-                </ul>
+                <a href="{{ route('features') }}">
+                    Security
+                </a>
 
             </div>
 
-            <div class="col-lg-3">
 
-                <h5>
+            {{-- Company --}}
+            <div>
 
-                    Resources
+                <h4>Company</h4>
 
-                </h5>
+                <a href="{{ route('about') }}">
+                    About
+                </a>
 
-                <ul class="list-unstyled">
-
-                    <li class="mb-2">Documentation</li>
-
-                    <li class="mb-2">Help Center</li>
-
-                    <li class="mb-2">Privacy Policy</li>
-
-                    <li>Terms & Conditions</li>
-
-                </ul>
+                <a href="{{ route('contact') }}">
+                    Contact
+                </a>
 
             </div>
 
-           <div class="col-lg-3">
 
-    <h5>Contact</h5>
+            {{-- Resources --}}
+            <div id="resources">
 
-    <p class="mb-2">
-        📧 {{ $setting->company_email ?? 'support@qdizer.com' }}
-    </p>
+                <h4>Resources</h4>
 
-    <p class="mb-2">
-        📞 {{ $setting->company_phone ?? '+971 50 123 4567' }}
-    </p>
+                <a href="{{ route('contact') }}">
+                    Help Center
+                </a>
 
-    <p class="mb-0">
-        📍 {!! nl2br(e($setting->company_address ?? 'Business Bay, Dubai, UAE')) !!}
-    </p>
+                <a href="{{ route('contact') }}">
+                    Contact Support
+                </a>
 
-</div>
+            </div>
+
+
+            {{-- Legal --}}
+            <div>
+
+                <h4>Legal</h4>
+
+                <a href="#">
+                    Terms
+                </a>
+
+                <a href="#">
+                    Privacy
+                </a>
+
+                <a href="#">
+                    Cookie Policy
+                </a>
+
+            </div>
 
         </div>
 
-        <hr class="border-secondary my-5">
 
-        <div class="row">
+        {{-- Industries --}}
+        <div class="footer-industries">
 
-            <div class="col-md-6">
+            <strong>Built for service businesses.</strong>
 
+            <span>HVAC</span>
+            <span>Electrical</span>
+            <span>Plumbing</span>
+            <span>Cleaning</span>
+            <span>Maintenance</span>
+            <span>Security</span>
+            <span>Landscaping</span>
+
+        </div>
+
+
+        {{-- Footer Bottom --}}
+        <div class="footer-bottom">
+
+            <span>
                 © {{ date('Y') }}
-                QDizer.
-                All Rights Reserved.
+                {{ $setting->company_name ?? 'QDizer' }}.
+                All rights reserved.
+            </span>
 
-            </div>
-
-            <div class="col-md-6 text-md-end">
-
-                Designed by
-                <strong>Amberbyte</strong>
-
-            </div>
+            <span>
+                Start simple. Grow with QDizer.
+            </span>
 
         </div>
 
     </div>
-
-</section>
+</footer>

@@ -8,6 +8,7 @@ use App\Mail\SubscriptionActivatedMail;
 use App\Mail\SubscriptionCancelledMail;
 use App\Models\SubscriptionTransaction;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -17,6 +18,7 @@ class StripeWebhookController extends CashierWebhookController
 {
     public function handleWebhook(Request $request)
     {
+        // Log::info('STRIPE WEBHOOK HIT');
         // Let Cashier update subscriptions & subscription_items
         $response = parent::handleWebhook($request);
 
@@ -34,8 +36,10 @@ class StripeWebhookController extends CashierWebhookController
 
                 $subscription = $payload['data']['object'];
 
-                $user = User::where('stripe_id', $subscription['customer'])->first();
-                  $user->updateDefaultPaymentMethodFromStripe();
+                $user = User::where(
+                    'stripe_id',
+                    $subscription['customer']
+                )->first();
 
                 if (! $user) {
 
@@ -45,24 +49,31 @@ class StripeWebhookController extends CashierWebhookController
 
                     break;
                 }
+
+                // Update default payment method
+                $user->updateDefaultPaymentMethodFromStripe();
+
                 $user->update([
 
                     'status' => 'active',
 
-                    'subscription_start' => now(),
-
-                    'subscription_end' => Carbon::createFromTimestamp(
-                        $subscription->current_period_end
+                    'subscription_start' => Carbon::createFromTimestamp(
+                        $subscription['current_period_start']
                     ),
 
-                    // 'stripe_subscription_id' => $subscription->id,
+                    'subscription_end' => Carbon::createFromTimestamp(
+                        $subscription['current_period_end']
+                    ),
 
                 ]);
 
                 Mail::to($user->email)
-                    ->send(new SubscriptionActivatedMail($user));
+                    ->send(
+                        new SubscriptionActivatedMail($user)
+                    );
 
                 break;
+
 
             /*
             |--------------------------------------------------------------------------
@@ -74,13 +85,20 @@ class StripeWebhookController extends CashierWebhookController
 
                 $invoice = $payload['data']['object'];
 
-                $user = User::where('stripe_id', $invoice['customer'])->first();
+                $user = User::where(
+                    'stripe_id',
+                    $invoice['customer']
+                )->first();
 
                 if (! $user) {
 
-                    Log::warning('User not found for invoice.payment_succeeded', [
-                        'customer' => $invoice['customer'],
-                    ]);
+                    Log::warning(
+                        'User not found for invoice.payment_succeeded',
+                        [
+                            'customer' => $invoice['customer'],
+                            'invoice' => $invoice['id'],
+                        ]
+                    );
 
                     break;
                 }
@@ -92,8 +110,19 @@ class StripeWebhookController extends CashierWebhookController
                         $invoice['id']
                     )->exists()
                 ) {
+
+                    Log::info('Invoice transaction already exists', [
+                        'invoice' => $invoice['id'],
+                    ]);
+
                     break;
                 }
+
+                $subtotal = ($invoice['subtotal'] ?? 0) / 100;
+
+                $total = ($invoice['total'] ?? 0) / 100;
+
+                $vat = $total - $subtotal;
 
                 $transaction = SubscriptionTransaction::create([
 
@@ -101,17 +130,20 @@ class StripeWebhookController extends CashierWebhookController
 
                     'stripe_invoice_id' => $invoice['id'],
 
-                    'stripe_payment_intent' => $invoice['payment_intent'] ?? null,
+                    'stripe_payment_intent' =>
+                        $invoice['payment_intent'] ?? null,
 
-                    'stripe_subscription_id' => $invoice['subscription'],
+                    'stripe_subscription_id' =>
+                        $invoice['subscription'] ?? null,
 
-                    'currency' => strtoupper($invoice['currency']),
+                    'currency' =>
+                        strtoupper($invoice['currency'] ?? 'aed'),
 
-                    'amount' => $invoice['subtotal'] / 100,
+                    'amount' => $subtotal,
 
-                    'vat' => ($invoice['total'] - $invoice['subtotal']) / 100,
+                    'vat' => $vat,
 
-                    'total' => $invoice['total'] / 100,
+                    'total' => $total,
 
                     'status' => 'paid',
 
@@ -124,9 +156,15 @@ class StripeWebhookController extends CashierWebhookController
                 ]);
 
                 Mail::to($user->email)
-                    ->send(new PaymentSuccessMail($user, $transaction));
+                    ->send(
+                        new PaymentSuccessMail(
+                            $user,
+                            $transaction
+                        )
+                    );
 
                 break;
+
 
             /*
             |--------------------------------------------------------------------------
@@ -138,26 +176,34 @@ class StripeWebhookController extends CashierWebhookController
 
                 $invoice = $payload['data']['object'];
 
-                $user = User::where('stripe_id', $invoice['customer'])->first();
+                $user = User::where(
+                    'stripe_id',
+                    $invoice['customer']
+                )->first();
 
                 if (! $user) {
 
-                    Log::warning('User not found for invoice.payment_failed', [
-                        'customer' => $invoice['customer'],
-                    ]);
-                $user->update([
-
-                    'status' => 'past_due'
-
-                ]);
+                    Log::warning(
+                        'User not found for invoice.payment_failed',
+                        [
+                            'customer' => $invoice['customer'],
+                        ]
+                    );
 
                     break;
                 }
 
+                $user->update([
+                    'status' => 'past_due',
+                ]);
+
                 Mail::to($user->email)
-                    ->send(new PaymentFailedMail($user));
+                    ->send(
+                        new PaymentFailedMail($user)
+                    );
 
                 break;
+
 
             /*
             |--------------------------------------------------------------------------
@@ -169,23 +215,31 @@ class StripeWebhookController extends CashierWebhookController
 
                 $subscription = $payload['data']['object'];
 
-                $user = User::where('stripe_id', $subscription['customer'])->first();
+                $user = User::where(
+                    'stripe_id',
+                    $subscription['customer']
+                )->first();
 
                 if (! $user) {
 
-                    Log::warning('User not found for subscription.deleted', [
-                        'customer' => $subscription['customer'],
-                    ]);
+                    Log::warning(
+                        'User not found for subscription.deleted',
+                        [
+                            'customer' => $subscription['customer'],
+                        ]
+                    );
 
                     break;
                 }
+
                 $user->update([
-
-                    'status' => 'cancelled'
-
+                    'status' => 'cancelled',
                 ]);
+
                 Mail::to($user->email)
-                    ->send(new SubscriptionCancelledMail($user));
+                    ->send(
+                        new SubscriptionCancelledMail($user)
+                    );
 
                 break;
         }

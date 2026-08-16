@@ -1,518 +1,1017 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Quotation {{ $quotation->quotation_number ?? '' }}</title>
+    <meta charset="utf-8">
+
+    <title>
+        Quotation {{ $quotation->quotation_number ?? '' }}
+    </title>
 
     <style>
-        /* ============================
-           BASE / RESET
-        ============================ */
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
         * {
             box-sizing: border-box;
         }
 
-        body{
-            font-family: DejaVu Sans, sans-serif;
-            background:#ffffff;
-            color:#1e293b;
-            font-size:12px;
-            margin:0;
-            padding:30px 35px;
-            line-height:1.5;
+        html,
+        body {
+            margin: 0;
+            padding: 0;
         }
 
-        table{
-            width:100%;
-            border-collapse:collapse;
+        body {
+            font-family: DejaVu Sans, Arial, sans-serif;
+            color: #1b2730;
+            background: #ffffff;
+            font-size: 9px;
         }
 
-        /* ============================
-           TOP ACCENT BAR
-        ============================ */
-        .top-accent{
-            height:7px;
-            background:#1e40af;
-            margin:-30px -35px 0 -35px;
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        /* ============================
+        /* =========================
+           PAGE
+        ========================= */
+
+        .sheet {
+            width: 210mm;
+            min-height: 297mm;
+            background: #ffffff;
+            position: relative;
+        }
+
+        /* =========================
            HEADER
-        ============================ */
-        .header-wrap{
-            padding:22px 0 18px 0;
-            border-bottom:3px solid #1e40af;
-            margin-bottom:22px;
+        ========================= */
+
+        .header {
+            background: #0c3546;
+            color: #ffffff;
+            padding: 15mm 17mm 12mm 17mm;
+            border-bottom: 5px solid #d39418;
         }
 
-        .logo{
-            max-height:70px;
-            max-width:200px;
+        .brand-table {
+            width: 100%;
         }
 
-        .company-name-header{
-            font-size:19px;
-            font-weight:bold;
-            color:#0f2557;
-            margin-top:6px;
+        .brand-left {
+            width: 60%;
+            vertical-align: top;
         }
 
-        .company-tagline{
-            color:#64748b;
-            font-size:10.5px;
+        .brand-right {
+            width: 40%;
+            vertical-align: top;
+            text-align: right;
         }
 
-        .doc-title-block{
-            text-align:right;
+        .company-logo {
+            max-width: 150px;
+            max-height: 50px;
+            margin-bottom: 7px;
         }
 
-        .doc-title-block h1{
-            margin:0;
-            font-size:30px;
-            color:#1e40af;
-            letter-spacing:3px;
-            font-weight:bold;
+        .company-name {
+            margin: 0;
+            font-size: 23px;
+            font-weight: bold;
+            color: #ffffff;
         }
 
-        .doc-title-block .doc-sub{
-            color:#64748b;
-            font-size:10.5px;
-            letter-spacing:1px;
-            text-transform:uppercase;
+        .tagline {
+            margin-top: 5px;
+            color: #c9dce2;
+            font-size: 8px;
+            letter-spacing: 1px;
         }
 
-        .doc-number-pill{
-            display:inline-block;
-            background:#eef2ff;
-            color:#1e40af;
-            padding:5px 12px;
-            border-radius:20px;
-            font-size:11px;
-            font-weight:bold;
-            margin-top:8px;
+        .document-title {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffffff;
         }
 
-        /* ============================
-           SECTION TITLES
-        ============================ */
-        .section-title{
-            font-size:11px;
-            font-weight:bold;
-            color:#1e40af;
-            text-transform:uppercase;
-            letter-spacing:1px;
-            margin-bottom:10px;
-            padding-bottom:6px;
-            border-bottom:1.5px solid #dbeafe;
+        .document-number {
+            margin-top: 6px;
+            color: #d8e5e9;
+            font-size: 9px;
         }
 
-        /* ============================
-           INFO CARDS (Company / Client)
-        ============================ */
-        .info-card{
-            background:#f8fafc;
-            border:1px solid #e2e8f0;
-            border-top:3px solid #1e40af;
-            border-radius:6px;
-            padding:16px 18px;
-            vertical-align:top;
+        /* =========================
+           HEADER META
+        ========================= */
+
+        .meta-table {
+            margin-top: 28px;
         }
 
-        .info-card .name-line{
-            font-size:14px;
-            font-weight:bold;
-            color:#0f2557;
-            margin-bottom:6px;
+        .meta-cell {
+            width: 33.33%;
+            vertical-align: top;
         }
 
-        .info-card .muted{
-            color:#475569;
-            line-height:1.8;
+        .meta-label {
+            display: block;
+            color: #a8c4ce;
+            font-size: 7px;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
         }
 
-        .spacer-col{
-            width:18px;
+        .meta-value {
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: bold;
         }
 
-        /* ============================
-           QUOTATION INFO PANEL
-        ============================ */
-        .quote-panel{
-            background:#1e40af;
-            border-radius:6px;
-            margin:20px 0;
-            padding:14px 20px;
+        /* =========================
+           CONTENT
+        ========================= */
+
+        .content {
+            padding: 13mm 17mm 30mm 17mm;
         }
 
-        .quote-panel table td{
-            color:#ffffff;
-            padding:4px 10px;
-            vertical-align:middle;
+        /* =========================
+           CLIENT
+        ========================= */
+
+        .client-table {
+            margin-bottom: 10mm;
         }
 
-        .quote-panel .qp-label{
-            display:block;
-            font-size:9px;
-            text-transform:uppercase;
-            letter-spacing:1px;
-            color:#c7d7fb;
-            margin-bottom:3px;
+        .client-box {
+            width: 68%;
+            background: #f6f8f8;
+            border-left: 4px solid #d39418;
+            padding: 15px;
+            vertical-align: top;
         }
 
-        .quote-panel .qp-value{
-            font-size:13px;
-            font-weight:bold;
-            color:#ffffff;
+        .status-box {
+            width: 32%;
+            vertical-align: middle;
+            text-align: center;
+            padding-left: 15px;
         }
 
-        .quote-panel .divider-col{
-            width:1px;
-            background:#3b5fc4;
+        .client-label {
+            color: #687780;
+            font-size: 7px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        /* ============================
-           SERVICES TABLE
-        ============================ */
-        .items{
-            margin-top:6px;
+        .client-name {
+            margin-top: 5px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #1b2730;
         }
 
-        .items thead th{
-            background:#1e40af;
-            color:#ffffff;
-            padding:11px 12px;
-            font-size:10.5px;
-            text-transform:uppercase;
-            letter-spacing:0.5px;
-            text-align:left;
+        .client-details {
+            margin-top: 5px;
+            font-size: 9px;
+            line-height: 1.6;
+            color: #687780;
         }
 
-        .items thead th.num{
-            text-align:right;
+        .status {
+            border: 1px solid #b9dec8;
+            background: #edf8f1;
+            color: #1f8050;
+            padding: 12px 8px;
+            border-radius: 12px;
+            font-size: 8px;
+            font-weight: bold;
         }
 
-        .items tbody td{
-            padding:10px 12px;
-            border-bottom:1px solid #e5e7eb;
-            font-size:11.5px;
-            color:#1e293b;
+        /* =========================
+           ITEMS TABLE
+        ========================= */
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        .items tbody td.num{
-            text-align:right;
+        .items-table th {
+            background: #0c3546;
+            color: #ffffff;
+            padding: 10px 8px;
+            font-size: 7px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: .7px;
         }
 
-        .items tbody tr:nth-child(even){
-            background:#f8fafc;
+        .items-table td {
+            padding: 11px 8px;
+            font-size: 9px;
+            border-bottom: 1px solid #dce5e8;
+            vertical-align: top;
         }
 
-        .items .item-name{
-            font-weight:bold;
-            color:#0f2557;
+        .items-table tr:nth-child(even) td {
+            background: #fafbfb;
         }
 
-        .items .item-desc{
-            color:#94a3b8;
-            font-size:10px;
+        .service-column {
+            width: 46%;
+            text-align: left;
         }
 
-        /* ============================
-           TOTALS BOX
-        ============================ */
-        .totals-wrap{
-            width:100%;
-            margin-top:18px;
+        .qty-column {
+            width: 10%;
+            text-align: right;
         }
 
-        .totals{
-            width:290px;
-            margin-left:auto;
-            border:1px solid #e2e8f0;
-            border-radius:6px;
-            overflow:hidden;
+        .price-column {
+            width: 20%;
+            text-align: right;
         }
 
-        .totals td{
-            padding:10px 16px;
-            font-size:11.5px;
-            color:#334155;
+        .total-column {
+            width: 24%;
+            text-align: right;
         }
 
-        .totals tr.line-row{
-            border-bottom:1px solid #e5e7eb;
+        .service-name {
+            font-size: 10px;
+            font-weight: bold;
+            color: #1b2730;
         }
 
-        .totals tr.line-row td:last-child{
-            text-align:right;
+        .service-description {
+            display: block;
+            margin-top: 3px;
+            font-size: 7px;
+            color: #687780;
+            line-height: 1.4;
         }
 
-        .totals tr.grand td{
-            background:#1e40af;
-            color:#ffffff;
-            font-size:15px;
-            font-weight:bold;
-            padding:14px 16px;
+        .number {
+            text-align: right;
+            white-space: nowrap;
         }
 
-        .totals tr.grand td:last-child{
-            text-align:right;
+        /* =========================
+           SUMMARY
+        ========================= */
+
+        .summary-table {
+            margin-top: 11mm;
         }
 
-        /* ============================
-           NOTES
-        ============================ */
-        .notes-box{
-            background:#f8fafc;
-            border-left:4px solid #1e40af;
-            padding:14px 16px;
-            border-radius:4px;
-            color:#475569;
-            font-size:11.5px;
+        .terms-cell {
+            width: 58%;
+            vertical-align: top;
+            padding-right: 14mm;
         }
 
-        /* ============================
-           TERMS
-        ============================ */
-        .terms-box{
-            color:#475569;
-            font-size:11px;
-            line-height:1.8;
+        .totals-cell {
+            width: 42%;
+            vertical-align: top;
         }
 
-        /* ============================
-           SIGNATURE BLOCK
-        ============================ */
-        .signature-wrap{
-            margin-top:40px;
+        .terms-box {
+            border: 1px solid #dce5e8;
+            padding: 15px;
+            color: #687780;
+            font-size: 8px;
+            line-height: 1.6;
         }
 
-        .signature-line{
-            border-top:1px solid #334155;
-            padding-top:8px;
-            margin-top:55px;
-            font-size:10.5px;
-            color:#64748b;
+        .terms-title {
+            color: #1b2730;
+            font-weight: bold;
+            font-size: 9px;
+            margin-bottom: 7px;
         }
 
-        .signature-title{
-            font-size:11.5px;
-            font-weight:bold;
-            color:#0f2557;
-            margin-bottom:2px;
+        .total-card {
+            background: #0c3546;
+            color: #ffffff;
+            padding: 15px;
         }
 
-        /* ============================
+        .total-row {
+            width: 100%;
+            padding: 5px 0;
+        }
+
+        .total-label {
+            color: #d4e3e8;
+            font-size: 9px;
+            text-align: left;
+        }
+
+        .total-value {
+            color: #d4e3e8;
+            font-size: 9px;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .grand-row {
+            border-top: 1px solid #55717c;
+            margin-top: 6px;
+            padding-top: 12px;
+        }
+
+        .grand-label {
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .grand-value {
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        /* =========================
+           PAYMENT / CONTACT
+        ========================= */
+
+        .bottom-table {
+            margin-top: 10mm;
+        }
+
+        .bottom-cell {
+            width: 50%;
+            vertical-align: top;
+            padding-right: 10px;
+        }
+
+        .bottom-cell:last-child {
+            padding-left: 10px;
+            padding-right: 0;
+        }
+
+        .bottom-box {
+            border-top: 2px solid #d39418;
+            padding-top: 10px;
+            color: #687780;
+            font-size: 8px;
+            line-height: 1.7;
+        }
+
+        .bottom-title {
+            color: #1b2730;
+            font-weight: bold;
+            font-size: 9px;
+        }
+
+        /* =========================
            FOOTER
-        ============================ */
-        .footer{
-            margin-top:35px;
-            padding-top:16px;
-            border-top:1px solid #e2e8f0;
-            text-align:center;
-            color:#94a3b8;
-            font-size:10px;
+        ========================= */
+
+        .footer {
+            position: absolute;
+            left: 17mm;
+            right: 17mm;
+            bottom: 9mm;
+            border-top: 1px solid #dce5e8;
+            padding-top: 7px;
         }
 
-        .footer .thanks{
-            color:#1e40af;
-            font-size:12px;
-            font-weight:bold;
-            margin-bottom:4px;
+        .footer-left {
+            text-align: left;
+            color: #687780;
+            font-size: 7px;
         }
 
-        .section-block{
-            margin-bottom:20px;
+        .footer-right {
+            text-align: right;
+            color: #687780;
+            font-size: 7px;
         }
+
     </style>
 </head>
+
+
 <body>
 
 @php
+
     $company = $quotation->user->companyProfile ?? null;
-    $companyName = $company->company_name ?? ($quotation->user->company ?? 'Your Company');
+
+    $companyName = $company?->company_name
+        ?? $quotation->user?->company
+        ?? 'Your Company';
+
+    $companyPhone = $company?->phone_number
+        ?? $quotation->user?->phone
+        ?? '';
+
+    $companyEmail = $company?->email
+        ?? $quotation->user?->email
+        ?? '';
+
+    $companyAddress = $company?->address ?? '';
+
+    $currency = $quotation->currency ?? 'AED';
+
 @endphp
 
-<div class="top-accent"></div>
 
-<!-- ===================== HEADER ===================== -->
-<div class="header-wrap">
-    <table>
-        <tr>
-            <td width="55%" style="vertical-align:top;">
-                @if(!empty($company->logo))
-                    <img src="{{ asset('storage/'.$company?->logo) }}" class="logo"><br>
-                @endif
-                <div class="company-name-header">{{ $companyName }}</div>
-                @if(!empty($company->tagline))
-                    <div class="company-tagline">{{ $company->tagline }}</div>
-                @endif
-            </td>
-            <td width="45%" class="doc-title-block" style="vertical-align:top;">
-                <h1>QUOTATION</h1>
-                <div class="doc-sub">Official Price Proposal</div>
-                <div class="doc-number-pill">{{ $quotation->quotation_number }}</div>
-            </td>
-        </tr>
-    </table>
-</div>
+<section class="sheet">
 
-<!-- ===================== COMPANY + CLIENT CARDS ===================== -->
-<div class="section-block">
-    <table>
-        <tr>
-            <td width="48%" class="info-card">
-                <div class="section-title">From</div>
-                <div class="name-line">{{ $companyName }}</div>
-                <div class="muted">
-                    {{ $company->address ?? '' }}<br>
-                    {{ $company->phone_number ?? $quotation->user->phone }}<br>
-                    {{ $company->email ?? $quotation->user->email }}
-                </div>
-            </td>
 
-            <td class="spacer-col"></td>
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
 
-            <td width="48%" class="info-card">
-                <div class="section-title">Quotation For</div>
-                <div class="name-line">{{ $quotation->client->client_name }}</div>
-                <div class="muted">
-                    {{ $quotation->client->phone_number }}<br>
-                    {{ $quotation->client->email ?? '' }}<br>
-                    {{ $quotation->client->address ?? '' }}
-                </div>
-            </td>
-        </tr>
-    </table>
-</div>
+    <div class="header">
 
-<!-- ===================== QUOTATION INFO PANEL ===================== -->
-<div class="quote-panel">
-    <table>
-        <tr>
-            <td width="33%">
-                <span class="qp-label">Quotation Number</span>
-                <span class="qp-value">{{ $quotation->quotation_number }}</span>
-            </td>
-            <td class="divider-col"></td>
-            <td width="33%">
-                <span class="qp-label">Date Issued</span>
-                <span class="qp-value">{{ \Carbon\Carbon::parse($quotation->date)->format('d M Y') }}</span>
-            </td>
-            <td class="divider-col"></td>
-            <td width="33%">
-                <span class="qp-label">Currency</span>
-                <span class="qp-value">AED</span>
-            </td>
-        </tr>
-    </table>
-</div>
+        <table class="brand-table">
 
-<!-- ===================== SERVICES TABLE ===================== -->
-<div class="section-block">
-    <div class="section-title">Services / Items</div>
-
-    <table class="items">
-        <thead>
             <tr>
-                <th width="46%">Service</th>
-                <th width="12%" class="num">Qty</th>
-                <th width="20%" class="num">Unit Price</th>
-                <th width="22%" class="num">Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($quotation->items as $item)
-            <tr>
-                <td>
-                    <div class="item-name">{{ $item->service->service_name }}</div>
-                    @if(!empty($item->description))
-                        <div class="item-desc">{{ $item->description }}</div>
+
+                <td class="brand-left">
+
+                    @if(!empty($company?->logo))
+
+                        <img
+                            src="{{ public_path('storage/' . $company->logo) }}"
+                            class="company-logo"
+                        >
+
                     @endif
+
+                    <div class="company-name">
+                        {{ $companyName }}
+                    </div>
+
+                    @if(!empty($company?->tagline))
+
+                        <div class="tagline">
+                            {{ strtoupper($company->tagline) }}
+                        </div>
+
+                    @else
+
+                        <div class="tagline">
+                            PROFESSIONAL SERVICE. RELIABLE DELIVERY.
+                        </div>
+
+                    @endif
+
                 </td>
-                <td class="num">{{ $item->quantity }}</td>
-                <td class="num">AED {{ number_format($item->unit_price,2) }}</td>
-                <td class="num">AED {{ number_format($item->total,2) }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
 
-    <!-- ===================== TOTALS ===================== -->
-    <div class="totals-wrap">
-        <table class="totals">
-            <tr class="line-row">
-                <td>Subtotal</td>
-                <td>AED {{ number_format($quotation->subtotal,2) }}</td>
+
+                <td class="brand-right">
+
+                    <div class="document-title">
+                        QUOTATION
+                    </div>
+
+                    <div class="document-number">
+                        {{ $quotation->quotation_number ?? '' }}
+                    </div>
+
+                </td>
+
             </tr>
-            <tr class="line-row">
-                <td>VAT</td>
-                <td>AED {{ number_format($quotation->vat,2) }}</td>
-            </tr>
-            @if(!empty($quotation->discount))
-            <tr class="line-row">
-                <td>Discount</td>
-                <td>- AED {{ number_format($quotation->discount,2) }}</td>
-            </tr>
-            @endif
-            <tr class="grand">
-                <td>Total Due</td>
-                <td>AED {{ number_format($quotation->total,2) }}</td>
-            </tr>
+
         </table>
-    </div>
-</div>
 
-<!-- ===================== NOTES ===================== -->
-@if(!empty($quotation->notes))
-<div class="section-block">
-    <div class="section-title">Notes</div>
-    <div class="notes-box">
-        {{ $quotation->notes }}
-    </div>
-</div>
-@endif
 
-<!-- ===================== TERMS & CONDITIONS ===================== -->
-@if(!empty($company->default_terms))
-<div class="section-block">
-    <div class="section-title">Terms &amp; Conditions</div>
-    <div class="terms-box">
-        {!! nl2br(e($company->default_terms)) !!}
-    </div>
-</div>
-@endif
+        <table class="meta-table">
 
-<!-- ===================== SIGNATURE BLOCK ===================== -->
-<div class="signature-wrap">
-    <table>
-        <tr>
-            <td width="48%">
-                <div class="signature-line">
-                    <div class="signature-title">{{ $companyName }}</div>
-                    Authorized Signature
-                </div>
-            </td>
-            <td class="spacer-col"></td>
-            <td width="48%">
-                <div class="signature-line">
-                    <div class="signature-title">{{ $quotation->client->client_name }}</div>
-                    Client Acceptance Signature
-                </div>
-            </td>
-        </tr>
-    </table>
-</div>
+            <tr>
 
-<!-- ===================== FOOTER ===================== -->
-<div class="footer">
-    <div class="thanks">Thank you for choosing {{ $companyName }}</div>
-    <div>
-        {{ $company->address ?? '' }}
-        @if(!empty($company->phone_number ?? $quotation->user->phone)) &bull; {{ $company->phone_number ?? $quotation->user->phone }} @endif
-        @if(!empty($company->email ?? $quotation->user->email)) &bull; {{ $company->email ?? $quotation->user->email }} @endif
+                <td class="meta-cell">
+
+                    <span class="meta-label">
+                        ISSUED
+                    </span>
+
+                    <span class="meta-value">
+
+                        {{ \Carbon\Carbon::parse($quotation->date)->format('d M Y') }}
+
+                    </span>
+
+                </td>
+
+
+                <td class="meta-cell">
+
+                    <span class="meta-label">
+                        VALID UNTIL
+                    </span>
+
+                    <span class="meta-value">
+
+                        @if(!empty($quotation->valid_until))
+
+                            {{ \Carbon\Carbon::parse($quotation->valid_until)->format('d M Y') }}
+
+                        @else
+
+                            —
+
+                        @endif
+
+                    </span>
+
+                </td>
+
+
+                <td class="meta-cell">
+
+                    <span class="meta-label">
+                        CURRENCY
+                    </span>
+
+                    <span class="meta-value">
+                        {{ $currency }}
+                    </span>
+
+                </td>
+
+            </tr>
+
+        </table>
+
     </div>
-    <div>This is a computer-generated quotation and is valid as per the terms stated above.</div>
-</div>
+
+
+    <!-- =====================================================
+         CONTENT
+    ====================================================== -->
+
+    <div class="content">
+
+
+        <!-- =================================================
+             CUSTOMER
+        ================================================== -->
+
+        <table class="client-table">
+
+            <tr>
+
+                <td class="client-box">
+
+                    <div class="client-label">
+                        Quotation For
+                    </div>
+
+                    <div class="client-name">
+
+                        {{ $quotation->client?->client_name ?? '' }}
+
+                    </div>
+
+                    <div class="client-details">
+
+                        @if(!empty($quotation->client?->address))
+
+                            {{ $quotation->client->address }}
+
+                        @endif
+
+
+                        @if(!empty($quotation->client?->phone_number))
+
+                            <br>
+                            {{ $quotation->client->phone_number }}
+
+                        @endif
+
+
+                        @if(!empty($quotation->client?->email))
+
+                            <br>
+                            {{ $quotation->client->email }}
+
+                        @endif
+
+                    </div>
+
+                </td>
+
+
+                <td class="status-box">
+
+                    <div class="status">
+
+                        ✓ QUOTATION
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        </table>
+
+
+        <!-- =================================================
+             SERVICES
+        ================================================== -->
+
+        <table class="items-table">
+
+            <thead>
+
+                <tr>
+
+                    <th class="service-column">
+                        Service Description
+                    </th>
+
+                    <th class="qty-column">
+                        Qty
+                    </th>
+
+                    <th class="price-column">
+                        Unit Price
+                    </th>
+
+                    <th class="total-column">
+                        Total
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                @forelse($quotation->items as $item)
+
+                    <tr>
+
+                        <td class="service-column">
+
+                            <div class="service-name">
+
+                                {{ $item->service?->service_name ?? 'Service' }}
+
+                            </div>
+
+
+                            @if(!empty($item->description))
+
+                                <span class="service-description">
+
+                                    {{ $item->description }}
+
+                                </span>
+
+                            @endif
+
+                        </td>
+
+
+                        <td class="qty-column number">
+
+                            {{ $item->quantity }}
+
+                        </td>
+
+
+                        <td class="price-column number">
+
+                            {{ $currency }}
+                            {{ number_format((float)$item->unit_price, 2) }}
+
+                        </td>
+
+
+                        <td class="total-column number">
+
+                            {{ $currency }}
+                            {{ number_format((float)$item->total, 2) }}
+
+                        </td>
+
+                    </tr>
+
+                @empty
+
+                    <tr>
+
+                        <td colspan="4" style="text-align:center; padding:20px; color:#687780;">
+
+                            No services added.
+
+                        </td>
+
+                    </tr>
+
+                @endforelse
+
+            </tbody>
+
+        </table>
+
+
+        <!-- =================================================
+             SUMMARY
+        ================================================== -->
+
+        <table class="summary-table">
+
+            <tr>
+
+
+                <!-- TERMS -->
+
+                <td class="terms-cell">
+
+                    <div class="terms-box">
+
+                        <div class="terms-title">
+                            Terms and Notes
+                        </div>
+
+
+                        @if(!empty($quotation->notes))
+
+                            {!! nl2br(e($quotation->notes)) !!}
+
+                        @endif
+
+
+                        @if(!empty($quotation->notes) && !empty($company?->default_terms))
+
+                            <br>
+                            <br>
+
+                        @endif
+
+
+                        @if(!empty($company?->default_terms))
+
+                            {!! nl2br(e($company->default_terms)) !!}
+
+                        @endif
+
+
+                        @if(
+                            empty($quotation->notes) &&
+                            empty($company?->default_terms)
+                        )
+
+                            Payment terms and conditions are subject
+                            to the quotation agreement.
+
+                        @endif
+
+                    </div>
+
+                </td>
+
+
+                <!-- TOTALS -->
+
+                <td class="totals-cell">
+
+                    <div class="total-card">
+
+                        <table>
+
+                            <tr class="total-row">
+
+                                <td class="total-label">
+                                    Subtotal
+                                </td>
+
+                                <td class="total-value">
+
+                                    {{ $currency }}
+                                    {{ number_format((float)$quotation->subtotal, 2) }}
+
+                                </td>
+
+                            </tr>
+
+
+                            <tr class="total-row">
+
+                                <td class="total-label">
+                                    VAT
+                                </td>
+
+                                <td class="total-value">
+
+                                    {{ $currency }}
+                                    {{ number_format($quotation->vat, 2) }}
+
+                                </td>
+
+                            </tr>
+
+
+                            @if(!empty($quotation->discount))
+
+                                <tr class="total-row">
+
+                                    <td class="total-label">
+                                        Discount
+                                    </td>
+
+                                    <td class="total-value">
+
+                                        - {{ $currency }}
+                                        {{ number_format((float)$quotation->discount, 2) }}
+
+                                    </td>
+
+                                </tr>
+
+                            @endif
+
+
+                            <tr>
+
+                                <td colspan="2"
+                                    class="grand-row">
+
+                                    <table>
+
+                                        <tr>
+
+                                            <td class="grand-label">
+                                                Total
+                                            </td>
+
+                                            <td class="grand-value">
+
+                                                {{ $currency }}
+                                                {{ number_format((float)$quotation->total, 2) }}
+
+                                            </td>
+
+                                        </tr>
+
+                                    </table>
+
+                                </td>
+
+                            </tr>
+
+                        </table>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        </table>
+
+
+        <!-- =================================================
+             PAYMENT / CONTACT
+        ================================================== -->
+
+        <table class="bottom-table">
+
+            <tr>
+
+
+                <!-- PAYMENT -->
+
+                <td class="bottom-cell">
+
+                    <div class="bottom-box">
+
+                        <div class="bottom-title">
+                            Payment Details
+                        </div>
+
+                        @if(!empty($company?->bank_name))
+
+                            {{ $company->bank_name }}
+
+                        @endif
+
+
+                        @if(!empty($company?->bank_name) && !empty($company?->iban))
+
+                            <br>
+
+                        @endif
+
+
+                        @if(!empty($company?->iban))
+
+                            IBAN {{ $company->iban }}
+
+                        @endif
+
+
+                        @if(
+                            empty($company?->bank_name) &&
+                            empty($company?->iban)
+                        )
+
+                            Payment details available upon request.
+
+                        @endif
+
+                    </div>
+
+                </td>
+
+
+                <!-- CONTACT -->
+
+                <td class="bottom-cell">
+
+                    <div class="bottom-box">
+
+                        <div class="bottom-title">
+                            Contact
+                        </div>
+
+
+                        @if(!empty($companyEmail))
+
+                            {{ $companyEmail }}
+
+                        @endif
+
+
+                        @if(!empty($companyPhone))
+
+                            <br>
+                            {{ $companyPhone }}
+
+                        @endif
+
+
+                        @if(!empty($companyAddress))
+
+                            <br>
+                            {{ $companyAddress }}
+
+                        @endif
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        </table>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <div class="footer">
+
+        <table>
+
+            <tr>
+
+                <td class="footer-left">
+
+                    {{ $company?->website ?? '' }}
+
+                </td>
+
+                <td class="footer-right">
+
+                    {{ $quotation->quotation_number ?? '' }}
+                    · QDizer
+
+                </td>
+
+            </tr>
+
+        </table>
+
+    </div>
+
+
+</section>
 
 </body>
+
 </html>

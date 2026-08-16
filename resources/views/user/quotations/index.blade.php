@@ -173,7 +173,12 @@
                                 
                                 <!-- ACTIONS -->
                                 <td class="text-end d-flex justify-content-end gap-2">
-
+                                    <a href="{{ route('quotations.preview', $quotation->quotation_number) }}"
+                                    target="_blank"
+                                    class="btn btn-primary">
+                                        <i class="bi bi-eye"></i>
+                                        Preview PDF
+                                    </a>
                                     <a href="{{ route('quotations.show', $quotation) }}" class="btn btn-sm"
                                         style="background: var(--secondary); color:#fff; border-radius:10px;">
                                         <i class="fas fa-eye"></i>
