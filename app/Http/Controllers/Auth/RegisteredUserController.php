@@ -46,6 +46,7 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
             'trial_start' => $trialStart,
             'trial_end' => $trialEnd,
+            'trial_ends_at' => $trialEnd,
             'status' => 'trial',
         ]);
 

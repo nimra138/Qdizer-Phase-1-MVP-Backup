@@ -7,22 +7,47 @@
         $expired = auth()->check() && auth()->user()->status == 'expired';
     @endphp
     <!-- HEADER -->
+    @php
+        $user = auth()->user();
+
+        $canCreateQuotation = $user->status === 'trial' || $user->status === 'active';
+    @endphp
+
+    <!-- HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
-            <h4 class="mb-1" style="color: var(--primary);">Quotations</h4>
-            <small class="text-muted">Manage all your client quotations</small>
+            <h4 class="mb-1" style="color: var(--primary);">
+                Quotations
+            </h4>
+
+            <small class="text-muted">
+                Manage all your client quotations
+            </small>
         </div>
 
 
-        <a href="{{ auth()->user()->canCreateQuotation() ? route('quotations.create') : route('billing') }}"
-   class="btn btn-accent d-flex align-items-center gap-2 px-3 py-2 {{ auth()->user()->canCreateQuotation() ? '' : 'disabled' }}">
+        @if ($canCreateQuotation)
+            {{-- Trial OR Active --}}
+            <a href="{{ route('quotations.create') }}" class="btn btn-accent d-flex align-items-center gap-2 px-3 py-2">
 
-    <i class="fas fa-plus"></i>
+                <i class="fas fa-plus"></i>
 
-    {{ auth()->user()->canCreateQuotation() ? 'Create Quotation' : 'Subscribe Now' }}
+                Create Quotation
 
-</a>
+            </a>
+        @else
+            {{-- Expired / Cancelled / Past Due --}}
+            <a href="{{ route('billing') }}" class="btn btn-accent d-flex align-items-center gap-2 px-3 py-2">
+
+                <i class="fas fa-credit-card"></i>
+
+                Subscribe Now
+
+            </a>
+        @endif
+
+
 
     </div>
     <!-- SEARCH -->
@@ -162,7 +187,7 @@
                                     {{ number_format($quotation->subtotal, 2) }}
                                 </td>
 
-                               
+
 
                                 <td>
                                     <strong style="color: var(--primary);">
@@ -170,54 +195,96 @@
                                     </strong>
                                 </td>
 
-                                
+
                                 <!-- ACTIONS -->
                                 <td class="text-end d-flex justify-content-end gap-2">
-                                    <a href="{{ route('quotations.preview', $quotation->quotation_number) }}"
+                                    {{-- <a href="{{ route('quotations.preview', $quotation->quotation_number) }}"
                                     target="_blank"
                                     class="btn btn-primary">
                                         <i class="bi bi-eye"></i>
                                         Preview PDF
-                                    </a>
+                                    </a> --}}
                                     <a href="{{ route('quotations.show', $quotation) }}" class="btn btn-sm"
                                         style="background: var(--secondary); color:#fff; border-radius:10px;">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     @php
+                                        $user = auth()->user();
+
+                                        /*
+    |--------------------------------------------------------------------------
+    | Subscription Permissions
+    |--------------------------------------------------------------------------
+    */
+
+                                        $canUseQuotationFeatures =
+                                            $user->status === 'trial' || $user->status === 'active';
+
+                                        /*
+    |--------------------------------------------------------------------------
+    | WhatsApp Message
+    |--------------------------------------------------------------------------
+    */
+
                                         $phone = preg_replace('/[^0-9]/', '', $quotation->client->phone_number);
 
                                         $publicUrl = route('quotation.public', $quotation->public_token);
 
                                         $text = "📄 Quotation: {$quotation->quotation_number}\n\n";
+
                                         $text .= "Hello {$quotation->client->client_name},\n\n";
+
                                         $text .= "Please review your quotation using the link below:\n";
+
                                         $text .= $publicUrl . "\n\n";
+
                                         $text .= "Thank you,\n";
+
                                         $text .= $setting->company_name;
 
                                         $waMessage = urlencode($text);
-
-                                        $disabledUrl = 'javascript:void(0)';
-                                        $expiredMessage =
-                                            "alert('Your trial has expired. Please upgrade your subscription.')";
                                     @endphp
 
-                                   <a href="{{ auth()->user()->canShareQuotation() ? 'https://wa.me/' . $phone . '?text=' . $waMessage : route('billing') }}"
-                                    target="{{ auth()->user()->canShareQuotation() ? '_blank' : '_self' }}"
-                                    class="btn btn-sm {{ auth()->user()->canShareQuotation() ? '' : 'text-muted' }}"
-                                    style="background:#25D366; color:#fff; border-radius:10px;">
 
-                                        <i class="fab fa-whatsapp"></i>
+                                    {{-- =========================================================
+     WHATSAPP
+========================================================= --}}
 
-                                    </a>
-                                    {{-- Edit --}}
-                                    <a href="{{ $expired ? $disabledUrl : route('quotations.edit', $quotation->id) }}"
-                                        class="btn btn-sm {{ $expired ? 'text-muted' : '' }}"
-                                        style="background: var(--primary); color:#fff; border-radius:10px;"
-                                        @if ($expired) onclick="{{ $expiredMessage }}" @endif>
-                                        <i class="fas fa-pen"></i>
-                                    </a>
+                                    @if ($canUseQuotationFeatures)
+                                        <a href="{{ 'https://wa.me/' . $phone . '?text=' . $waMessage }}" target="_blank"
+                                            class="btn btn-sm" style="background:#25D366; color:#fff; border-radius:10px;">
 
+                                            <i class="fab fa-whatsapp"></i>
+
+                                        </a>
+                                    @else
+                                        <a href="{{ route('billing') }}" class="btn btn-sm text-muted"
+                                            title="Your subscription has expired. Please upgrade."
+                                            style="background:#25D366; color:#fff; border-radius:10px;">
+
+                                            <i class="fab fa-whatsapp"></i>
+
+                                        </a>
+                                    @endif
+
+
+
+                                    @if ($canUseQuotationFeatures)
+                                        <a href="{{ route('quotations.edit', $quotation->id) }}" class="btn btn-sm"
+                                            style="background: var(--primary); color:#fff; border-radius:10px;">
+
+                                            <i class="fas fa-pen"></i>
+
+                                        </a>
+                                    @else
+                                        <a href="{{ route('billing') }}" class="btn btn-sm text-muted"
+                                            title="Your subscription has expired. Please upgrade."
+                                            style="background: var(--primary); color:#fff; border-radius:10px;">
+
+                                            <i class="fas fa-lock"></i>
+
+                                        </a>
+                                    @endif
                                     <form action="{{ route('quotations.destroy', $quotation->id) }}" method="POST">
 
                                         @csrf
@@ -247,29 +314,23 @@
                 <h5 class="text-muted">No Quotations Found</h5>
                 <p class="text-muted">Start by creating your first quotation.</p>
 
-               @if(auth()->user()->canCreateQuotation())
+                @if (auth()->user()->canCreateQuotation())
+                    <a href="{{ route('quotations.create') }}" class="btn btn-accent px-4">
 
-    <a href="{{ route('quotations.create') }}"
-       class="btn btn-accent px-4">
+                        <i class="fas fa-plus"></i>
 
-        <i class="fas fa-plus"></i>
+                        Create Quotation
 
-        Create Quotation
+                    </a>
+                @else
+                    <a href="{{ route('billing') }}" class="btn btn-warning px-4">
 
-    </a>
+                        <i class="fas fa-crown"></i>
 
-@else
+                        Upgrade Plan
 
-    <a href="{{ route('billing') }}"
-       class="btn btn-warning px-4">
-
-        <i class="fas fa-crown"></i>
-
-        Upgrade Plan
-
-    </a>
-
-@endif
+                    </a>
+                @endif
 
             </div>
 

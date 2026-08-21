@@ -7,62 +7,130 @@
 
 @php
     $user = auth()->user();
-    // dd($subscription);
-    // die;
+
     $subscription = $subscription ?? null;
 
     $hasSubscription = $subscription && $subscription->valid();
-
     $isTrial = $subscription?->onTrial();
 
     $transactions = $transactions ?? collect();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Subscription Status
+    |--------------------------------------------------------------------------
+    */
+    $subscriptionStatus = $subscription?->stripe_status;
+
+    $isActive = $hasSubscription && $subscriptionStatus === 'active';
+    $isCanceled = $subscription && $subscription->ends_at && !$subscription->ended();
 @endphp
 
 <div class="billing-wrapper mb-5">
 
-    {{-- HERO --}}
-    <div class="billing-hero d-flex justify-content-between align-items-center mb-4">
+    {{-- =========================================================
+        HERO
+    ========================================================== --}}
+    <div class="billing-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
         <div>
-            <h2>Subscription & Billing</h2>
+            <h2 class="mb-1">
+                Subscription & Billing
+            </h2>
+
             <p class="text-muted mb-0">
                 Manage your QDizer subscription, invoices and payments.
             </p>
         </div>
 
-        @if(!$hasSubscription)
+        @if (!$hasSubscription)
             <form method="POST" action="{{ route('subscribe') }}">
                 @csrf
-                <button class="btn btn-primary px-4">
+
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="fas fa-arrow-up me-1"></i>
                     Upgrade Now
                 </button>
             </form>
         @endif
+
     </div>
 
-    {{-- STATS --}}
+
+    {{-- =========================================================
+        SESSION MESSAGES
+    ========================================================== --}}
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <i class="fas fa-circle-check me-2"></i>
+            {{ session('success') }}
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <i class="fas fa-circle-exclamation me-2"></i>
+            {{ session('error') }}
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    @endif
+
+
+    {{-- =========================================================
+        STATS
+    ========================================================== --}}
     <div class="row g-4 mb-4">
 
+        {{-- Current Plan --}}
         <div class="col-lg-3 col-md-6">
-            <div class="billing-stat card h-100">
+            <div class="billing-stat card h-100 shadow-sm border-0">
+
                 <div class="card-body">
-                    <div class="fs-3 mb-2">💎</div>
+
+                    <div class="fs-3 mb-2">
+                        💎
+                    </div>
 
                     <small class="text-muted">
                         Current Plan
                     </small>
 
-                    <h4 class="mt-2">
-                        {{ $hasSubscription ? 'QDizer Pro' : 'Free Trial' }}
+                    <h4 class="mt-2 mb-0">
+
+                        @if ($isActive)
+                            QDizer Pro
+                        @elseif ($isTrial)
+                            Free Trial
+                        @else
+                            Free Plan
+                        @endif
+
                     </h4>
+
                 </div>
+
             </div>
         </div>
 
+
+        {{-- Status --}}
         <div class="col-lg-3 col-md-6">
-            <div class="billing-stat card h-100">
+            <div class="billing-stat card h-100 shadow-sm border-0">
+
                 <div class="card-body">
 
-                    <div class="fs-3 mb-2">📊</div>
+                    <div class="fs-3 mb-2">
+                        📊
+                    </div>
 
                     <small class="text-muted">
                         Status
@@ -70,16 +138,28 @@
 
                     <h4 class="mt-2">
 
-                        @if($hasSubscription)
+                        @if ($isActive)
 
                             <span class="badge bg-success">
-                                {{ ucfirst($subscription->stripe_status) }}
+                                Active
+                            </span>
+
+                        @elseif ($isCanceled)
+
+                            <span class="badge bg-danger">
+                                Canceling
+                            </span>
+
+                        @elseif ($isTrial)
+
+                            <span class="badge bg-warning text-dark">
+                                Trial
                             </span>
 
                         @else
 
-                            <span class="badge bg-warning text-dark">
-                                Trial
+                            <span class="badge bg-secondary">
+                                Inactive
                             </span>
 
                         @endif
@@ -87,14 +167,20 @@
                     </h4>
 
                 </div>
+
             </div>
         </div>
 
+
+        {{-- Payment Method --}}
         <div class="col-lg-3 col-md-6">
-            <div class="billing-stat card h-100">
+            <div class="billing-stat card h-100 shadow-sm border-0">
+
                 <div class="card-body">
 
-                    <div class="fs-3 mb-2">💳</div>
+                    <div class="fs-3 mb-2">
+                        💳
+                    </div>
 
                     <small class="text-muted">
                         Payment Method
@@ -102,28 +188,36 @@
 
                     <h4 class="mt-2">
 
-                        @if($user->pm_type)
+                        @if ($user->pm_type && $user->pm_last_four)
 
                             {{ strtoupper($user->pm_type) }}
                             **** {{ $user->pm_last_four }}
 
                         @else
 
-                            Card
+                            <span class="text-muted">
+                                Not Available
+                            </span>
 
                         @endif
 
                     </h4>
 
                 </div>
+
             </div>
         </div>
 
+
+        {{-- Renewal --}}
         <div class="col-lg-3 col-md-6">
-            <div class="billing-stat card h-100">
+            <div class="billing-stat card h-100 shadow-sm border-0">
+
                 <div class="card-body">
 
-                    <div class="fs-3 mb-2">📅</div>
+                    <div class="fs-3 mb-2">
+                        📅
+                    </div>
 
                     <small class="text-muted">
                         Renewal
@@ -131,9 +225,9 @@
 
                     <h4 class="mt-2">
 
-                        @if($hasSubscription)
+                        @if ($hasSubscription)
 
-                            @if($subscription->ends_at)
+                            @if ($subscription->ends_at)
 
                                 {{ $subscription->ends_at->format('d M Y') }}
 
@@ -145,25 +239,32 @@
 
                         @else
 
-                            --
+                            <span class="text-muted">
+                                --
+                            </span>
 
                         @endif
 
                     </h4>
 
                 </div>
+
             </div>
         </div>
 
     </div>
 
-    {{-- PLAN CARD --}}
-    <div class="card shadow-sm mb-4">
 
-        <div class="card-body">
+    {{-- =========================================================
+        PLAN CARD
+    ========================================================== --}}
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-body p-4">
 
             <div class="row align-items-center">
 
+                {{-- Plan Details --}}
                 <div class="col-lg-8">
 
                     <span class="badge bg-primary mb-2">
@@ -175,45 +276,106 @@
                     </h2>
 
                     <h1 class="display-5 fw-bold">
+
                         79 AED
+
                         <small class="fs-5 text-muted">
                             / Month
                         </small>
+
                     </h1>
 
-                    <p class="text-muted">
+                    <p class="text-muted mb-0">
                         VAT Included • Cancel Anytime
                     </p>
 
-                    <ul class="list-unstyled mt-4">
 
-                        <li>✔ Unlimited Quotations</li>
-                        <li>✔ Unlimited Clients</li>
-                        <li>✔ Unlimited Services</li>
-                        <li>✔ Premium PDF Export</li>
-                        <li>✔ WhatsApp Sharing</li>
-                        <li>✔ Priority Support</li>
+                    {{-- Features --}}
+                    <ul class="list-unstyled mt-4 mb-0">
+
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Unlimited Quotations
+                        </li>
+
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Unlimited Clients
+                        </li>
+
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Unlimited Services
+                        </li>
+
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Premium PDF Export
+                        </li>
+
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            WhatsApp Sharing
+                        </li>
+
+                        <li>
+                            <i class="fas fa-check text-success me-2"></i>
+                            Priority Support
+                        </li>
 
                     </ul>
 
                 </div>
 
+
+                {{-- Plan Action --}}
                 <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
 
-                    @if(!$hasSubscription)
+                    @if (!$hasSubscription)
 
                         <form method="POST" action="{{ route('subscribe') }}">
                             @csrf
 
-                            <button class="btn btn-primary btn-lg">
+                            <button
+                                type="submit"
+                                class="btn btn-primary btn-lg px-4"
+                            >
+                                <i class="fas fa-credit-card me-1"></i>
                                 Subscribe Now
                             </button>
-
                         </form>
+
+                    @elseif ($isCanceled)
+
+                        <div>
+
+                            <button
+                                type="button"
+                                class="btn btn-warning btn-lg"
+                                disabled
+                            >
+                                Subscription Canceling
+                            </button>
+
+                            @if ($subscription->ends_at)
+
+                                <div class="small text-muted mt-2">
+                                    Access until
+                                    {{ $subscription->ends_at->format('d M Y') }}
+                                </div>
+
+                            @endif
+
+                        </div>
 
                     @else
 
-                        <button class="btn btn-success btn-lg" disabled>
+                        <button
+                            type="button"
+                            class="btn btn-success btn-lg"
+                            disabled
+                        >
+                            <i class="fas fa-check me-1"></i>
                             Subscription Active
                         </button>
 
@@ -226,81 +388,125 @@
         </div>
 
     </div>
-    {{-- @if($subscription && $subscription->valid())
 
-<form action="{{ route('billing.cancel') }}"
-      method="POST">
 
-    @csrf
+    {{-- =========================================================
+        PAYMENT HISTORY
+    ========================================================== --}}
+    <div class="card shadow-sm border-0">
 
-    <button
-        class="btn btn-danger"
-        onclick="return confirm('Cancel your subscription?')">
-
-        Cancel Subscription
-
-    </button>
-
-</form>
-
-@endif --}}
-    {{-- PAYMENT HISTORY --}}
-    <div class="card shadow-sm">
-
-        <div class="card-header bg-white">
+        <div class="card-header bg-white py-3">
 
             <h4 class="mb-0">
+                <i class="fas fa-receipt me-2"></i>
                 Billing History
             </h4>
 
         </div>
 
+
         <div class="table-responsive">
 
             <table class="table table-hover align-middle mb-0">
 
-                <thead>
+                <thead class="table-light">
 
                     <tr>
 
-                        <th>Invoice</th>
+                        <th>
+                            Invoice
+                        </th>
 
-                        <th>Date</th>
+                        <th>
+                            Date
+                        </th>
 
-                        <th>Amount</th>
+                        <th>
+                            Amount
+                        </th>
 
-                        <th>Status</th>
+                        <th>
+                            Status
+                        </th>
 
                     </tr>
 
                 </thead>
 
+
                 <tbody>
 
-                    @forelse($transactions as $transaction)
+                    @forelse ($transactions as $transaction)
 
                         <tr>
 
+                            {{-- Invoice --}}
                             <td>
-                                {{ $transaction->stripe_invoice_id }}
+
+                                <span class="fw-semibold">
+                                    {{ $transaction->stripe_invoice_id ?? '--' }}
+                                </span>
+
                             </td>
 
+
+                            {{-- Date --}}
                             <td>
-                                {{ optional($transaction->paid_at)->format('d M Y') }}
+
+                                {{ optional($transaction->paid_at)->format('d M Y') ?? '--' }}
+
                             </td>
 
-                            <td>
-                                {{ $transaction->currency }}
-                                {{ number_format($transaction->total,2) }}
-                            </td>
 
+                            {{-- Amount --}}
                             <td>
 
-                                <span class="badge bg-success">
+                                <span class="fw-semibold">
 
-                                    {{ ucfirst($transaction->status) }}
+                                    {{ strtoupper($transaction->currency ?? 'AED') }}
+
+                                    {{ number_format((float) $transaction->total, 2) }}
 
                                 </span>
+
+                            </td>
+
+
+                            {{-- Status --}}
+                            <td>
+
+                                @php
+                                    $status = strtolower($transaction->status ?? 'unknown');
+                                @endphp
+
+                                @if ($status === 'paid' || $status === 'succeeded' || $status === 'success')
+
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check me-1"></i>
+                                        {{ ucfirst($transaction->status) }}
+                                    </span>
+
+                                @elseif ($status === 'pending')
+
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-clock me-1"></i>
+                                        Pending
+                                    </span>
+
+                                @elseif ($status === 'failed')
+
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-xmark me-1"></i>
+                                        Failed
+                                    </span>
+
+                                @else
+
+                                    <span class="badge bg-secondary">
+                                        {{ ucfirst($transaction->status ?? 'Unknown') }}
+                                    </span>
+
+                                @endif
 
                             </td>
 
@@ -310,9 +516,20 @@
 
                         <tr>
 
-                            <td colspan="4" class="text-center py-5">
+                            <td
+                                colspan="4"
+                                class="text-center py-5"
+                            >
 
-                                No payment history found.
+                                <div class="text-muted">
+
+                                    <i class="fas fa-receipt fs-2 mb-3"></i>
+
+                                    <p class="mb-0">
+                                        No payment history found.
+                                    </p>
+
+                                </div>
 
                             </td>
 
@@ -326,7 +543,9 @@
 
         </div>
 
-        @if(method_exists($transactions,'links'))
+
+        {{-- Pagination --}}
+        @if (method_exists($transactions, 'links'))
 
             <div class="card-footer bg-white">
 
@@ -341,4 +560,3 @@
 </div>
 
 @endsection
-

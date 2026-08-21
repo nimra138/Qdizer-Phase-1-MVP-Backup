@@ -1,16 +1,159 @@
 @php
     $user = auth()->user();
-    $subscription = $user->subscription('default');
 
-    $logo = asset('user/img/logo.png');
+    /*
+    |--------------------------------------------------------------------------
+    | User Subscription State
+    |--------------------------------------------------------------------------
+    */
 
-    $expired = ! $subscription || ! $subscription->valid();
-@endphp
-@php
-    $subscription = auth()->user()->subscription('default');
+    $isTrial = $user->status === 'trial';
 
-    $canCreateQuotation = $subscription &&
-        ($subscription->valid() || $subscription->onGracePeriod());
+    $isActive = $user->status === 'active';
+
+    $isCanceling = $user->status === 'cancelled';
+
+    $isExpired = $user->status === 'expired';
+
+    $isPastDue = $user->status === 'past_due';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Trial Dates
+    |--------------------------------------------------------------------------
+    */
+
+    $trialStart = $user->trial_start
+        ? \Carbon\Carbon::parse($user->trial_start)
+        : null;
+
+    $trialEnd = $user->trial_end
+        ? \Carbon\Carbon::parse($user->trial_end)
+        : null;
+
+    /*
+    |--------------------------------------------------------------------------
+    | IMPORTANT:
+    | If user is currently on trial, show trial.
+    | Do NOT use subscription valid() to determine trial.
+    |--------------------------------------------------------------------------
+    */
+
+    $trialDaysLeft = 0;
+
+    if ($isTrial && $trialEnd) {
+        // $trialDaysLeft = max(
+        //     0,
+        //     now()->diffInDays($trialEnd, false)
+        // );
+         $trialDaysLeft = $isTrial
+    ? (int) ceil(max(0, now()->diffInDays($trialEnd, false)))
+    : null;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Subscription Dates
+    |--------------------------------------------------------------------------
+    */
+
+    $subscriptionStart = $user->subscription_start
+        ? \Carbon\Carbon::parse($user->subscription_start)
+        : null;
+
+    $subscriptionEnd = $user->subscription_end
+        ? \Carbon\Carbon::parse($user->subscription_end)
+        : null;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Subscription Days Left
+    |--------------------------------------------------------------------------
+    */
+
+    $subscriptionDaysLeft = null;
+
+    if ($isActive && $subscriptionEnd) {
+        // $subscriptionDaysLeft = max(
+        //     0,
+        //     now()->diffInDays($subscriptionEnd, false)
+        // );
+        $subscriptionDaysLeft = $isActive
+        ? (int) ceil(max(0, now()->diffInDays($subscriptionEnd, false)))
+        : null;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Trial Progress
+    |--------------------------------------------------------------------------
+    */
+
+    $trialProgress = 0;
+
+    if ($trialStart && $trialEnd && $trialEnd->greaterThan($trialStart)) {
+
+        $totalTrialSeconds = $trialStart->diffInSeconds($trialEnd);
+
+        $usedTrialSeconds = $trialStart->diffInSeconds(
+            min(now(), $trialEnd)
+        );
+
+        $trialProgress = min(
+            100,
+            max(
+                0,
+                ($usedTrialSeconds / $totalTrialSeconds) * 100
+            )
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Subscription Progress
+    |--------------------------------------------------------------------------
+    */
+
+    $subscriptionProgress = 0;
+
+    if (
+        $subscriptionStart &&
+        $subscriptionEnd &&
+        $subscriptionEnd->greaterThan($subscriptionStart)
+    ) {
+
+        $totalSubscriptionSeconds =
+            $subscriptionStart->diffInSeconds($subscriptionEnd);
+
+        $usedSubscriptionSeconds =
+            $subscriptionStart->diffInSeconds(
+                min(now(), $subscriptionEnd)
+            );
+
+        $subscriptionProgress = min(
+            100,
+            max(
+                0,
+                ($usedSubscriptionSeconds / $totalSubscriptionSeconds) * 100
+            )
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Can Create Quotation
+    |--------------------------------------------------------------------------
+    */
+
+    $canCreateQuotation =
+        $isTrial ||
+        $isActive;
 @endphp
 <!-- Mobile Button + Brand Wrapper -->
 <div class="d-flex align-items-center justify-content-between d-lg-none px-3 py-2">
@@ -97,20 +240,26 @@
             </li>
 
            <li>
-    <a href="{{ auth()->user()->canCreateQuotation() ? route('quotations.create') : 'javascript:void(0)' }}"
-       class="{{ auth()->user()->canCreateQuotation() ? '' : 'text-muted' }}"
-       @unless(auth()->user()->canCreateQuotation())
-           onclick="alert('Your subscription has expired. Please subscribe to continue.')"
-       @endunless>
+    @if($canCreateQuotation)
 
-        <i class="fas fa-plus"></i>
-        Create Quotation
+        <a href="{{ route('quotations.create') }}">
+            <i class="fas fa-plus"></i>
+            Create Quotation
+        </a>
 
-        @unless(auth()->user()->canCreateQuotation())
+    @else
+
+        <a href="javascript:void(0)"
+           class="text-muted"
+           onclick="alert('Your trial or subscription has expired. Please subscribe to continue.')">
+
+            <i class="fas fa-plus"></i>
+            Create Quotation
             <i class="fas fa-lock ms-1"></i>
-        @endunless
 
-    </a>
+        </a>
+
+    @endif
 </li>
 
         </ul>

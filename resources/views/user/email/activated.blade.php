@@ -37,7 +37,7 @@
         Thank you for choosing <strong>QDizer</strong>.
     </p>
 
-    <a href="{{ route('dashboard') }}"
+    <a href="{{ route('home') }}"
        style="display:inline-block;
               padding:12px 24px;
               background:#4F46E5;

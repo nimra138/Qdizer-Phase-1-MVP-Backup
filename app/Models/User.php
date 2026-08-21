@@ -42,21 +42,21 @@ class User extends Authenticatable  implements MustVerifyEmail
     'pm_last_four',
     'trial_ends_at',
 ];
-protected function casts(): array
-{
-    return [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
 
+   protected $casts = [
+
+        'email_verified_at' => 'datetime',
+    'password' => 'hashed',
         'trial_start' => 'datetime',
+
         'trial_end' => 'datetime',
 
-        'subscription_start' => 'datetime',
-        'subscription_end' => 'datetime',
-
         'trial_ends_at' => 'datetime',
+
+        'subscription_start' => 'datetime',
+
+        'subscription_end' => 'datetime',
     ];
-}
     /**
      * The attributes that should be hidden for serialization.
      *

@@ -28,14 +28,14 @@ Route::view('/pricing', 'user.home.pricing')->name('pricing');
 Route::view('/contact', 'user.home.contact')->name('contact');
 Route::post('/contact', [ContactController::class,'store'])->name('contact.store');
 Route::get('/quote/{token}', [QuotationController::class, 'publicView'])->name('quotation.public');
-Route::get('/cop', function () {
-    return view('user.quotations.pdf.default');
-    })->name('main');
+// Route::get('/cop', function () {
+//     return view('user.quotations.pdf.default');
+//     })->name('main');
 
 
     Auth::routes(['verify' => true]);
-    Route::get('/tamplate', function () {
-        return view('user.home.partials.template');
+    Route::get('/', function () {
+        return view('user.home.index');
         })->name('main');
         
         Route::get('/dashboard', function () {
@@ -95,7 +95,7 @@ Route::get('/cop', function () {
                     
 
                     Route::post('/stripe/webhook', [
-                        WebhookController::class,
+                        StripeWebhookController::class,
                         'handleWebhook',
                     ]);
 

@@ -5,7 +5,7 @@
         <div class="footer-inner">
 
             <!-- Left -->
-            <div class="footer-left">
+            <div class="footer-center">
                 <div class="brand">
                     <strong>QDizer</strong>
                     <span>© {{ date('Y') }} All rights reserved</span>
@@ -13,14 +13,14 @@
             </div>
 
             <!-- Center Links -->
-            <div class="footer-center">
+            {{-- <div class="footer-center">
                 <a href="#">Privacy Policy</a>
                 <a href="#">Terms</a>
                 <a href="#">Support</a>
-            </div>
+            </div> --}}
 
             <!-- Right -->
-            <div class="footer-right">
+            {{-- <div class="footer-right">
                 <a href="#" class="social">
                     <i class="fab fa-facebook"></i>
                 </a>
@@ -30,7 +30,7 @@
                 <a href="#" class="social">
                     <i class="fab fa-linkedin"></i>
                 </a>
-            </div>
+            </div> --}}
 
         </div>
 
