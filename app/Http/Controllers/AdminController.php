@@ -165,6 +165,9 @@ class AdminController extends Controller
 
         return view('admin.client.show', compact('client'));
     }
+
+
+
     // servise 
     public function services(Request $request)
     {
@@ -200,7 +203,9 @@ class AdminController extends Controller
         $query->where(function ($q) use ($search) {
             $q->where('quotation_number', 'like', "%{$search}%")
               ->orWhereHas('client', function ($client) use ($search) {
+
                   $client->where('client_name', 'like', "%{$search}%");
+                  
               })
               ->orWhereHas('user', function ($user) use ($search) {
                   $user->where('name', 'like', "%{$search}%");

@@ -28,7 +28,7 @@
                     create beautiful quotations, manage clients and generate
                     professional PDFs in seconds.
                 </p>
-
+ 
                 <div class="d-flex flex-wrap gap-3">
 
                     <a href="{{ route('register') }}"

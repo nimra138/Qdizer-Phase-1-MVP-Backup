@@ -76,7 +76,7 @@ class RegisterController extends Controller
         'password' => Hash::make($data['password']),
         'status' => 'trial',
         'trial_start' => now(),
-        'trial_end' => now()->addDays(7),
+        'trial_end' => now()->addDays(14),
     ]);
 }
 }
