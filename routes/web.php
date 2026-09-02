@@ -33,10 +33,14 @@ Route::get('/quote/{token}', [QuotationController::class, 'publicView'])->name('
 //     })->name('main');
 
 
-    Auth::routes(['verify' => true]);
-    Route::get('/', function () {
-        return view('user.home.index');
-        })->name('main');
+
+Route::get('/', function () {
+    return view('user.home.index');
+})->name('main');
+
+Route::get('/tamplate', function () {
+    return view('user.home.partials.template');
+});
         
         Route::get('/dashboard', function () {
             return view('user.dashboard.index');
@@ -157,7 +161,7 @@ Route::get('/quote/{token}', [QuotationController::class, 'publicView'])->name('
 
             // Subscriptions
             Route::get('/subscriptions', 'subscriptions')->name('subscriptions');
-            Route::get('/subscriptions/{id}',[SubscriptionController::class,'subscriptionsshow'])->name('admin.subscriptions.show');
+            Route::get('/subscriptions/{id}',[AdminController::class,'subscriptionsshow'])->name('subscriptions.show');
             // Transactions
             // Route::get('/transactions', 'transactions')->name('transactions');
 
@@ -174,5 +178,3 @@ Route::get('/quote/{token}', [QuotationController::class, 'publicView'])->name('
 
         }); 
     require __DIR__.'/auth.php';
-    Auth::routes();
-

@@ -153,7 +153,7 @@
                     <input
                         type="hidden"
                         name="token"
-                        value="{{ $token }}"
+                        value="{{ $token ?? request()->route('token') }}"
                     >
 
                     {{-- Email --}}

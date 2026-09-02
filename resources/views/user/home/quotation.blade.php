@@ -34,9 +34,6 @@
                         {{ $company->address }}
                     </p>
 
-
-
-                    
                     <p class="text-muted mb-0">
                         {{ $company->phone_number }}
                     </p>

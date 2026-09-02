@@ -34,7 +34,6 @@ Hero
 
     </div>
 
-    
 </section>
 
 

@@ -14,20 +14,10 @@
         <div class="wrap nav-inner">
 
             {{-- Logo --}}
-            @if ($setting?->company_logo)
-                <a class="brand" href="{{ route('main') }}" aria-label="QDizer home">
-
-                    <img src="{{ asset('storage/' . $setting->company_logo) }}"
-                        alt="{{ $setting->company_name ?? 'QDizer' }}">
-
-                </a>
-            @else
-                <a class="brand" href="{{ route('main') }}" aria-label="QDizer home">
-
-                    {{ $setting->company_name ?? 'QDizer' }}
-
-                </a>
-            @endif
+            <a class="brand" href="{{ route('main') }}" aria-label="QDizer home">
+                <img src="{{ $setting?->company_logo ? asset('storage/' . $setting->company_logo) : asset('user/assets/qdizer-logo.png') }}"
+                    alt="{{ $setting->company_name ?? 'QDizer' }}">
+            </a>
 
 
             {{-- Mobile Menu --}}
@@ -75,20 +65,45 @@
 
                 @auth
 
-                    @if (auth()->user()->email_verified_at)
-                        <a class="login-link" href="{{ route('home') }}">
+                    @if (auth()->user()->hasVerifiedEmail())
+
+                        {{-- Verified: show Dashboard and Logout --}}
+                        <a class="login-link" href="{{ route('dashboard') }}">
                             Dashboard
                         </a>
+
+                        <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+                            @csrf
+                            <button type="submit" class="login-link" style="background:none;border:none;cursor:pointer;padding:0;font:inherit;">
+                                Logout
+                            </button>
+                        </form>
+
+                    @else
+
+                        {{-- Authenticated but unverified: prompt verification --}}
+                        <a class="login-link" href="{{ route('verification.notice') }}">
+                            Verify Email
+                        </a>
+
+                        <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+                            @csrf
+                            <button type="submit" class="login-link" style="background:none;border:none;cursor:pointer;padding:0;font:inherit;">
+                                Logout
+                            </button>
+                        </form>
+
                     @endif
+
                 @else
+
+                    {{-- Guest: Login + CTA --}}
                     <a class="login-link" href="{{ route('login') }}">
                         Login
                     </a>
 
                     <a class="btn btn-gold btn-small" href="{{ route('register') }}">
-
                         Start 14-Day Free Trial <span>→</span>
-
                     </a>
 
                 @endauth

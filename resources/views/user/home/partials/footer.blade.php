@@ -6,16 +6,10 @@
             {{-- Brand --}}
             <div class="footer-brand">
 
-                @if ($setting?->company_logo)
-                    <a href="{{ route('main') }}">
-                        <img src="{{ asset('storage/' . $setting->company_logo) }}"
-                            alt="{{ $setting->company_name ?? 'QDizer' }}">
-                    </a>
-                @else
-                    <a href="{{ route('main') }}">
-                        <h3>{{ $setting->company_name ?? 'QDizer' }}</h3>
-                    </a>
-                @endif
+                <a href="{{ route('main') }}" aria-label="QDizer home">
+                    <img src="{{ $setting?->company_logo ? asset('storage/' . $setting->company_logo) : asset('user/assets/qdizer-logo.png') }}"
+                        alt="{{ $setting->company_name ?? 'QDizer' }}">
+                </a>
 
                 <p>
                     Professional quotations created, shared and tracked
