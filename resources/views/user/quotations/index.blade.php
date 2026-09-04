@@ -29,7 +29,7 @@
 
         @if ($canCreateQuotation)
             {{-- Trial OR Active --}}
-            <a href="{{ route('quotations.create') }}" class="btn btn-accent d-flex align-items-center gap-2 px-3 py-2">
+            <a href="{{ route('quotation.create') }}" class="btn btn-accent d-flex align-items-center gap-2 px-3 py-2">
 
                 <i class="fas fa-plus"></i>
 
@@ -52,7 +52,7 @@
     </div>
     <!-- SEARCH -->
     <div class="card-ui p-4 mb-4" style="border-radius:16px;">
-        <form method="GET" action="{{ route('quotations.index') }}">
+        <form method="GET" action="{{ route('quotation.index') }}">
             <div class="row g-3 align-items-center">
 
                 <div class="{{ request('search') ? 'col-md-8' : 'col-md-10' }}">
@@ -74,7 +74,7 @@
 
                 @if (request('search'))
                     <div class="col-md-2 d-grid">
-                        <a href="{{ route('quotations.index') }}" class="btn btn-outline-secondary" style="height:48px;">
+                        <a href="{{ route('quotation.index') }}" class="btn btn-outline-secondary" style="height:48px;">
                             Clear
                         </a>
                     </div>
@@ -204,7 +204,7 @@
                                         <i class="bi bi-eye"></i>
                                         Preview PDF
                                     </a> --}}
-                                    <a href="{{ route('quotations.show', $quotation) }}" class="btn btn-sm"
+                                    <a href="{{ route('quotation.show', $quotation) }}" class="btn btn-sm"
                                         style="background: var(--secondary); color:#fff; border-radius:10px;">
                                         <i class="fas fa-eye"></i>
                                     </a>
@@ -270,7 +270,7 @@
 
 
                                     @if ($canUseQuotationFeatures)
-                                        <a href="{{ route('quotations.edit', $quotation->id) }}" class="btn btn-sm"
+                                        <a href="{{ route('quotation.edit', $quotation->id) }}" class="btn btn-sm"
                                             style="background: var(--primary); color:#fff; border-radius:10px;">
 
                                             <i class="fas fa-pen"></i>
@@ -285,7 +285,7 @@
 
                                         </a>
                                     @endif
-                                    <form action="{{ route('quotations.destroy', $quotation->id) }}" method="POST">
+                                    <form action="{{ route('quotation.destroy', $quotation->id) }}" method="POST">
 
                                         @csrf
                                         @method('DELETE')

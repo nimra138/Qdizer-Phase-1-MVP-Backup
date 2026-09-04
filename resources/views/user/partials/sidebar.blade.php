@@ -233,7 +233,7 @@
                 <ul class="submenu">
 
             <li>
-                <a href="{{ route('quotations.index') }}">
+                <a href="{{ route('quotation.index') }}">
                     <i class="fas fa-list"></i>
                     All Quotations
                 </a>
@@ -242,7 +242,7 @@
            <li>
     @if($canCreateQuotation)
 
-        <a href="{{ route('quotations.create') }}">
+        <a href="{{ route('quotation.create') }}">
             <i class="fas fa-plus"></i>
             Create Quotation
         </a>

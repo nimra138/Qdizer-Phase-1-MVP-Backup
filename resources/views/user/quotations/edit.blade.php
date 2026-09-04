@@ -13,7 +13,7 @@
         </small>
     </div>
 
-    <form action="{{ route('quotations.update', $quotation->id) }}" method="POST">
+    <form action="{{ route('quotation.update', $quotation->id) }}" method="POST">
         @csrf
         @method('PUT')
 

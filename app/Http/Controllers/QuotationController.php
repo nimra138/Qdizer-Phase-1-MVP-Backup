@@ -107,7 +107,7 @@ class QuotationController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('quotations.index')
+                ->route('quotation.index')
                 ->with('success', 'Quotation created successfully');
         } catch (\Exception $e) {
             DB::rollBack();

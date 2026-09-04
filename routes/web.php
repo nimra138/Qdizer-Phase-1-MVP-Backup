@@ -55,22 +55,19 @@ Route::get('/tamplate', function () {
                 Route::resource('clients', ClientController::class);
                 
                 // Route::resource('quotations', QuotationController::class);
-                Route::resource('quotations', QuotationController::class) ->except(['create', 'store']);
-                Route::get('/quotation/create', [QuotationController::class, 'create'])->name('quotations.create');
-                Route::post('/quotations', [QuotationController::class, 'store'])->middleware('subscription')->name('quotations.store');
+                Route::resource('quotation', QuotationController::class) ->except(['store']);
+                // Route::get('/quotations/create', [QuotationController::class, 'create'])->name('quotation.create');
+                Route::post('/quotation', [QuotationController::class, 'store'])->middleware('subscription')->name('quotations.store');
                 Route::get('/quotation/{quotation}',[QuotationController::class,'show'])->name('quotation.show');
-                Route::get(
-                            '/quotations/{quotation}/preview',
-                            [QuotationController::class, 'preview']
-                        )->name('quotations.preview');
+                Route::get('/quotations/{quotation}/preview', [QuotationController::class, 'preview'])->name('quotations.preview');
                 Route::get('/quotation/{quotation}/download', [QuotationController::class,'download'])->middleware(['auth', 'subscription'])->name('quotation.download');
                 Route::get('/quotation/pdfs', [QuotationController::class, 'pdfFiles'])->name('quotation.pdfs');
+                Route::get('quotations/{quotation}/template',[QuotationController::class, 'template'])->name('quotations.template');
                 
                 Route::get('/company-profile/view', [CompanyController::class, 'show'])->name('company.show');
                 Route::get('/company-profile', [CompanyController::class, 'edit'])->name('company.edit');
                 Route::post('/company-profile', [CompanyController::class, 'update'])->name('company.update');
 
-                Route::get('quotations/{quotation}/template',[QuotationController::class, 'template'])->name('quotations.template');
                 Route::get('/subscription', function () {
                     return view('user.subscription.index');
                     })->name('main');
